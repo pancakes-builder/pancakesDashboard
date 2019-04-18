@@ -1,0 +1,187 @@
+<div class="pages">
+<!-- get each section, exclude a few sections-->
+{{ $section := "" }}
+
+<!-- let user define the meta image key -->
+{{ $meta_image := "" }}
+
+{{ range (where (where .Site.Sections "Section" "ne" "dashboard") "Section" "ne" "uploads") }}
+<h1>{{ .Section }}</h1>
+
+{{ $section = .Section }}
+<!--pagination for each section-->
+{{ $paginator := .Paginate (where (where .Site.Pages "Layout" "ne" "pancakesDashboard") "Section" "eq" $section) }}
+
+{{ range .Paginator.Pages }}
+
+<!-- set default title-->
+{{- $title := "NO TITLE SET" -}}
+{{- if .Title -}}
+  {{- $title = .Title -}}
+{{- end -}}
+{{- $meta := "" -}}
+{{- $meta_title := $title -}}
+{{- $meta_description := .Description -}}
+{{- $meta_image := "/uploads/site/og_image.jpg" -}}
+{{- with .Params.image -}}
+{{- $meta_image = . -}}
+{{- end -}}
+{{- with .Params.meta -}}
+{{- $meta = . -}}
+{{- with .title -}}
+  {{- $meta_title = . -}}
+{{- end -}}
+{{- with .description -}}
+  {{- $meta_description = . -}}
+{{- end -}}
+{{- with .og_image -}}
+  {{- $meta_image = . -}}
+{{- end -}}
+{{- with .image -}}
+  {{- $meta_image = . -}}
+{{- end -}}
+{{- end -}}
+{{ if in $meta_image "images" }}
+{{ $imgsrc := strings.TrimPrefix "/" $meta_image }}
+  {{ with .Resources.Match $imgsrc }}
+  {{ range . }}
+    {{ $imgsrc = . }}
+    {{ $imgsized := ($imgsrc.Resize "500x q100") }}
+    {{ $meta_image = $imgsized.Permalink }}
+  {{ end }}
+  {{ end }}
+{{ end }}
+
+  <a target="_blank" href="{{ .Permalink }}">
+
+    <img class="metaImage" src="{{ $meta_image }}">
+    <div>
+      <span class="title">{{ with $meta_title }}{{ . | safeHTML }}{{ else }}NO META TITLE SET {{ end }}</span>
+      <span class="permalink">{{ .Permalink | safeHTML }}</span>
+      <span class="description">{{ with $meta_description }}{{ . | safeHTML }}{{ else }}NO META SET {{ end }}</span>
+    </div>
+  </a>
+</div>
+{{ end }}
+
+{{ end }}
+
+</div>
+<script type="text/javascript">
+
+getLinks();
+
+
+function ajaxGetContent(linkSrc, link) {
+  fetch(linkSrc /*, options */)
+    .then((response) => response.text())
+    .then((html) => {
+        let parser = new DOMParser();
+
+        // Parse the text
+        var doc = parser.parseFromString(html, "text/html");
+        var head = doc.querySelector('head');
+        //var pbCritical = doc.querySelector('.pb_criticalCSS').innerHTML;
+        (function () {
+          //console.log(head);
+          let pageTitle = head.querySelector("title");
+          //console.log(pageTitle);
+          let metaTitle = head.querySelector('[name="title"]').innerHTML;
+          let metas = head.querySelectorAll("meta");
+
+          metas.forEach(function (meta, index) {
+            let name = meta.getAttribute("name");
+            let property = meta.getAttribute("property");
+            let content = meta.getAttribute("content");
+            //console.log(meta);
+            if (name && content) {
+              //console.log(name, content);
+              
+              getMetaContentByName(name, content);
+            } else if (property && content) {
+              //console.log(property, content);
+              getMetaContentByProperty(property, content, link);
+            }
+            
+            
+          });
+        })();
+
+        function getMetaContentByName(name,content){
+          //console.log(name);
+          //console.log(content);
+          //console.log(document.querySelector("meta[name='"+name+"']"));
+        }
+        function getMetaContentByProperty(property, content, link){
+          
+          if (property.match(/image/)) {
+            setPreviewImage(content);
+          }
+          //console.log(document.querySelector("meta[name='"+name+"']"));
+          function setPreviewImage() {
+            //console.log(link);
+            link.querySelector("img").setAttribute("src", content);
+          }
+        }
+        
+    })
+    .catch((error) => {
+        console.warn(error);
+    });
+}
+
+function getLinks() {
+  let links = document.querySelectorAll("a");
+  //console.log(links);
+  links.forEach(function (link, index) {
+    let linkSrc = link.href;
+    ajaxGetContent(linkSrc, link);
+  });
+}
+  
+</script>
+
+<style>
+  section {
+    margin-bottom: 32px;
+  }
+  section > div a {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr;
+    grid-row-gap: 25px;
+    grid-column-gap: 15px;
+    text-decoration: none;
+    align-items: center;
+  }
+  section > div {
+    margin-bottom: 20px;
+  }
+  section > div a > div {
+    display: flex;
+    flex-direction: column;
+  }
+  .pages {
+    width: 1000px;
+    max-width: 100%;
+  }
+  .title {
+    font-size: 18px;
+    line-height: 1.33;
+  }
+  .permalink, .description {
+    font-size: 14px;
+  }
+  .permalink {
+    color: #006621;
+    font-style: normal;
+  }
+  .description {
+    color: #545454;
+  }
+  .metaImage {
+    width: 500px;
+    max-width: 100%;
+  }
+  
+  </style>
