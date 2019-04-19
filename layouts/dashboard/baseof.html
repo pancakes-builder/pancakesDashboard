@@ -1,0 +1,3 @@
+{{ $paginator := .Paginate (where (where .Site.Pages "Layout" "ne" "pancakesDashboard") "Section" "eq" $section) }}
+
+{{ block "main" . }}{{ end }}
