@@ -1,0 +1,18 @@
+<!--for dev, auto refresh with partial-->
+{{ if $.Site.IsServer }}
+
+{{ else }}
+<!--embed the same partial in the processed js file-->
+
+{{ end }}
+
+{{ $tabs := resources.Get "dashboard/js/components/tabs.js" | resources.Minify }}
+{{ $utils := resources.Get "dashboard/js/util.js" }}
+
+{{ $basejs := slice $utils $tabs | resources.Concat "dashboardbase.js" }}
+
+<script type="text/javascript" src="{{ $basejs.Permalink }}"></script>
+
+{{ $dashboardjs := resources.Get "dashboard/js/dashboard.js" }}
+{{ $dashboard := $dashboardjs | resources.Minify | resources.Fingerprint }}
+<script type="text/javascript" src="{{ $dashboard.Permalink }}" integrity="{{ $dashboard.Data.Integrity }}"></script>

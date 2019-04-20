@@ -1,3 +1,13 @@
-{{ $paginator := .Paginate (where (where .Site.Pages "Layout" "ne" "pancakesDashboard") "Section" "eq" $section) }}
-
-{{ block "main" . }}{{ end }}
+<!doctype html>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+    <head>
+    {{ partial "dashboard/styles.html" . }}
+    </head>
+    <body class="pancakesDashboard">
+    <main class="dashboardContent" role="main">
+        {{ partial "dashboard/sidebar.html" . }}
+        {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "dashboard/scripts.html" . }}
+    </body>
+</html>

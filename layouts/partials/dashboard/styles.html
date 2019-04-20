@@ -1,0 +1,7 @@
+<script>document.getElementsByTagName("html")[0].className += " js";</script>
+
+{{ $dashboardcss := resources.Get "dashboard/scss/dashboard.scss" | resources.ToCSS }}
+<link rel="stylesheet" href="{{ $dashboardcss.Permalink }}">
+
+{{ $style := resources.Get "dashboard/scss/style.scss" | resources.ToCSS }}
+<link rel="stylesheet" href="{{ $style.Permalink }}">
