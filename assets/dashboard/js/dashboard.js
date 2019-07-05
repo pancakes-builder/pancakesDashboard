@@ -32,18 +32,10 @@ function parseXML () {
   .then((response) => response.text())
   .then(function(xml) {
     let parser = new DOMParser();
-
     let content = parser.parseFromString(xml, "text/xml");
-
     let pages = content.querySelectorAll("loc");
-
-    // Array.from(pages).forEach((item) => {
-    //   //console.log(item.innerHTML);
-    //   pageList.push(item.innerHTML)
-      
-    // });
+    // Start evaluating the links
     evaluateXML(pages);
-    //return pages;
   });
     
 }
@@ -56,13 +48,6 @@ window.addEventListener("DOMContentLoaded", function() {
   //console.log("parseXML test", parseXML());
   checkMode();
   parseXML();
-  //console.log("array", parseXML())
-  //console.log("isarray", parseXML().length)
-  
-  // parseXML().forEach((link) => {
-  //   console.log("link", link)
-  // });
-  
 });
 
 
