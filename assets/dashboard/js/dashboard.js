@@ -41,7 +41,11 @@ function parseXML () {
 }
 
 function evaluateXML (links) {
-  console.log("link", links)
+  if (Array.isArray(links) && links.length > 0) {
+    return links;
+  } else {
+    return false;
+  }
 }
 
 window.addEventListener("DOMContentLoaded", function() {
@@ -83,7 +87,7 @@ function ajaxGetContent(linkSrc, link, mode) {
         // Parse the text
         var doc = parser.parseFromString(html, "text/html");
         var head = doc.querySelector('head');
-       
+        
         (function () {
           //console.log(head);
           let pageTitle = head.querySelector("title");
