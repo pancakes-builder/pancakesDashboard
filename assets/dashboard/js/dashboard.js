@@ -24,10 +24,49 @@ toggles.forEach((toggle) => {
   }
 });
 
+function parseXML () {
+  let sitemap = document.querySelector('#sitemap').value;
+  sitemap = window.location.origin + sitemap;
+
+  fetch(sitemap)
+  .then((response) => response.text())
+  .then(function(xml) {
+    let parser = new DOMParser();
+
+    let content = parser.parseFromString(xml, "text/xml");
+
+    let pages = content.querySelectorAll("loc");
+
+    // Array.from(pages).forEach((item) => {
+    //   //console.log(item.innerHTML);
+    //   pageList.push(item.innerHTML)
+      
+    // });
+    evaluateXML(pages);
+    //return pages;
+  });
+    
+}
+
+function evaluateXML (links) {
+  console.log("link", links)
+}
+
 window.addEventListener("DOMContentLoaded", function() {
+  //console.log("parseXML test", parseXML());
   checkMode();
+  parseXML();
+  //console.log("array", parseXML())
+  //console.log("isarray", parseXML().length)
+  
+  // parseXML().forEach((link) => {
+  //   console.log("link", link)
+  // });
+  
 });
 
+
+//console.log("mode", parseXML());
 function checkMode() {
   console.log("run checked mode");
   radios.forEach((radio) => {
@@ -59,12 +98,11 @@ function ajaxGetContent(linkSrc, link, mode) {
         // Parse the text
         var doc = parser.parseFromString(html, "text/html");
         var head = doc.querySelector('head');
-        //var pbCritical = doc.querySelector('.pb_criticalCSS').innerHTML;
        
         (function () {
           //console.log(head);
           let pageTitle = head.querySelector("title");
-          //console.log(pageTitle);
+          console.log(pageTitle);
           let metaTitle = head.querySelector('[name="title"]').innerHTML;
           let metas = head.querySelectorAll("meta");
 
@@ -81,8 +119,6 @@ function ajaxGetContent(linkSrc, link, mode) {
               //console.log(property, content);
               getMetaContentByProperty(property, content, link);
             }
-            
-            
           });
         })();
 
@@ -117,16 +153,21 @@ function ajaxGetContent(linkSrc, link, mode) {
 }
 
 function getLinks(mode) {
-  console.log("mode", mode);
+  //console.log("mode", mode, parseXML());
   
   //console.log(toggle);
   let openTab = document.querySelector(".tabs__panel--selected");
-  let links = openTab.querySelectorAll("a");
-    //console.log(links);
-    links.forEach(function (link, index) {
-      let linkSrc = link.href;
-      ajaxGetContent(linkSrc, link, mode);
-    });
+  //let links = parseXML();
+    //console.log("LINKS", links.childNodes);
+
+    // for (i = 0; i <links.length; i++) {
+    //   //console.log("link", links[i])
+    // }
+    // links.forEach(function (link, index) {
+    //   let linkSrc = link;
+    //   //console.log("link", link)
+    //   ajaxGetContent(linkSrc, link, mode);
+    // });
   
 }
 })();
