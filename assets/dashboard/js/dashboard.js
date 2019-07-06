@@ -1,3 +1,5 @@
+// getGroup(link); // return the associated top level group for a link
+// getGroups(links); // return an array of all available groups;
 (function () {
 let main = document.querySelector("main");
 let tabLinks = document.querySelectorAll(".tabs__controls");
@@ -41,11 +43,90 @@ function parseXML () {
 }
 
 function evaluateXML (links) {
-  if (Array.isArray(links) && links.length > 0) {
-    return links;
+
+  if (links.length > 0) {
+
+
+    createSections(links);
+
+    links.forEach(link => {
+      link = link.innerHTML;
+
+      //opulateSections(link, getGroup(link));
+      //console.log("link", link, "group", getGroup(link), "Groups", getGroups(links));
+      
+      // Create tabs for each group
+      
+      
+    });
+    
+    
+
+
+
   } else {
     return false;
   }
+}
+
+function createSections (links) {
+  let groups = getGroups(links);
+  let listSidebar = document.querySelector('.groups');
+  let listContent = document.querySelector('.sections');
+
+  groups.forEach(group => {
+    listSidebar.innerHTML += `<li>${group}</li>`;
+    listContent.innerHTML += `
+    <ul aria-label='${group}'>
+      <li>
+        <h2>${group}</h2>
+      </li>
+      <ul class='section-items'>
+      
+      </ul>
+    </ul>`;
+  });
+  links.forEach(link => {
+    link = link.innerHTML;
+    let thisGroup = getGroup(link)[0];
+      let section = document.querySelector(`[aria-label='${thisGroup}']`);
+      section.innerHTML += `<li><a href="${link}">${link}</a></li>`;
+  });
+  
+  
+}
+
+function getGroups (links) {
+  let groups = [];
+
+  links.forEach(link => {
+    link = link.innerHTML;
+    let group = getGroup(link)[0];
+
+    if (groups.indexOf(group) === -1) {
+      groups.push(group)
+    }
+  });
+  
+  return groups;
+}
+function getGroup (link) {
+  let location = window.location.origin;
+  location = location.replace(window.location.protocol, '');
+  link = link.replace(location, '');
+
+  let sections = link.split("/");
+
+  let cleanSection = [];
+  sections.forEach(section => {
+    if (section !== "") {
+      cleanSection.push(section);
+    }
+  });
+
+  //console.log('section', cleanSection)
+  return cleanSection;
+
 }
 
 window.addEventListener("DOMContentLoaded", function() {
