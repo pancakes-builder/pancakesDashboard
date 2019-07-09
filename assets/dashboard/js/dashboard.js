@@ -29,7 +29,6 @@ toggles.forEach((toggle) => {
 function parseXML () {
   let sitemap = document.querySelector('#sitemap').value;
   sitemap = window.location.origin + sitemap;
-
   fetch(sitemap)
   .then((response) => response.text())
   .then(function(xml) {
@@ -45,8 +44,6 @@ function parseXML () {
 function evaluateXML (links) {
 
   if (links.length > 0) {
-
-
     createSections(links);
 
     links.forEach(link => {
@@ -56,28 +53,24 @@ function evaluateXML (links) {
       //console.log("link", link, "group", getGroup(link), "Groups", getGroups(links));
       
       // Create tabs for each group
-      
-      
     });
-    
-    
-
-
 
   } else {
     return false;
   }
 }
 
+// Create groups of links
 function createSections (links) {
   let groups = getGroups(links);
   let listSidebar = document.querySelector('.groups');
   let listContent = document.querySelector('.sections');
+  let mode = checkMode;
 
   groups.forEach(group => {
     listSidebar.innerHTML += `<li>${group}</li>`;
     listContent.innerHTML += `
-    <ul aria-label='${group}'>
+    <ul class="list" aria-label='${group}'>
       <li>
         <h2>${group}</h2>
       </li>
@@ -89,13 +82,17 @@ function createSections (links) {
   links.forEach(link => {
     link = link.innerHTML;
     let thisGroup = getGroup(link)[0];
-      let section = document.querySelector(`[aria-label='${thisGroup}']`);
-      section.innerHTML += `<li><a href="${link}">${link}</a></li>`;
+      let section = document.querySelector(`[aria-label='${thisGroup}'] .section-items`);
+      section.innerHTML += `
+      <li>
+        <a href="${link}" target="_blank" class="link-wrapper"></a>
+      </li>`;
+      let linkHTML = section.querySelector('.link-wrapper');
+      ajaxGetContent(link, mode, linkHTML);
   });
-  
-  
 }
 
+// Return an array of groups based on a link array
 function getGroups (links) {
   let groups = [];
 
@@ -110,6 +107,8 @@ function getGroups (links) {
   
   return groups;
 }
+
+// Return an individual group based on the supplied URL
 function getGroup (link) {
   let location = window.location.origin;
   location = location.replace(window.location.protocol, '');
@@ -157,9 +156,10 @@ function checkMode() {
     } else {
       main.classList.remove("mode-" + radio.name);
     }
+    return mode;
   });
 }
-function ajaxGetContent(linkSrc, link, mode) {
+function ajaxGetContent(linkSrc, mode, linkHTML) {
   fetch(linkSrc /*, options */)
     .then((response) => response.text())
     .then((html) => {
@@ -172,9 +172,15 @@ function ajaxGetContent(linkSrc, link, mode) {
         (function () {
           //console.log(head);
           let pageTitle = head.querySelector("title");
-          console.log(pageTitle);
-          let metaTitle = head.querySelector('[name="title"]').innerHTML;
+          //let metaTitle = head.querySelector('[name="title"]').innerHTML;
           let metas = head.querySelectorAll("meta");
+          console.log(pageTitle, metas);
+
+          if (!pageTitle) {
+            pageTitle = "No Title Set!";
+          }
+          linkHTML.innerHTML += `<span class="page-title">${pageTitle.innerHTML}</span>`;
+
 
           metas.forEach(function (meta, index) {
             let name = meta.getAttribute("name");
@@ -184,20 +190,14 @@ function ajaxGetContent(linkSrc, link, mode) {
             if (name && content) {
               //console.log(name, content);
               //property = name;
-              getMetaContentByProperty(name, content, link);
+              getMetaContentByProperty(name, content);
             } else if (property && content) {
               //console.log(property, content);
-              getMetaContentByProperty(property, content, link);
+              getMetaContentByProperty(property, content);
             }
           });
         })();
-
-        function getMetaContentByName(name,content){
-          //console.log(name);
-          //console.log(content);
-          //console.log(document.querySelector("meta[name='"+name+"']"));
-        }
-        function getMetaContentByProperty(property, content, link){
+        function getMetaContentByProperty(property, content){
           //console.log(property);
           //Get Facebook, Linkedin, Twitter preview image
           // Property=""
@@ -210,7 +210,7 @@ function ajaxGetContent(linkSrc, link, mode) {
           }
           //console.log(document.git adquerySelector("meta[name='"+name+"']"));
           function setPreviewImage() {
-            link.querySelector(".metaBgImage").style.backgroundImage = `url('${content}')`;
+            //link.querySelector(".metaBgImage").style.backgroundImage = `url('${content}')`;
             
           }
         }

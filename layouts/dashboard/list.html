@@ -1,8 +1,9 @@
 {{ define "main" }}
 <div class="pancakesDashboard">
 
-  <div class="sections">
-    
+  <div id='hacker-list' class="sections">
+    <input class="search" />
+    <span class="sort" data-sort="page-title">Sort by page Title</span>
   </div>
   <!-- get each section, exclude a few sections-->
   {{ $section := "" }}
