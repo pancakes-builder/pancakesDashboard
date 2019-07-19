@@ -3,5 +3,5 @@
 {{ $dashboardcss := resources.Get "dashboard/scss/dashboard.scss" | resources.ToCSS }}
 <link rel="stylesheet" href="{{ $dashboardcss.Permalink }}">
 
-{{ $style := resources.Get "dashboard/scss/style.scss" | resources.ToCSS }}
+{{ $style := resources.Get "dashboard/scss/style.scss" | resources.ToCSS | resources.Minify }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
