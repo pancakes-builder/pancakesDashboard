@@ -37,20 +37,29 @@
     if (links.length > 0) {
       createSections(links);
 
-      // links.forEach(link => {
-      //   link = link.innerHTML;
-
-      //   (async() => {
-
-      //   })();
-      // });
-
     } else {
       return false;
     }
   }
 
 
+  let getMetaValue = (selector, head) => {
+    console.log(selector, head)
+    let metaItem = head.querySelector(selector);
+
+    if (metaItem) {
+      if (metaItem.innerText !== undefined || metaItem.innerText !== null) {
+        return metaItem.innerText;
+      } else if ((metaItem.content !== undefined || metaItem.content !== null)) {
+        return metaItem.content;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+    
+  }
 
   // Create groups of links
   function createSections (links) {
@@ -72,49 +81,49 @@
     });
 
     links.forEach((link) => {
-      console.log(link)
       link = link.innerHTML;
 
       let getMeta = async(src) => {
         const response = await fetch(src);
         const html = await response.text();
         let parser = new DOMParser();
+
         // Parse the text
         let doc = parser.parseFromString(html, "text/html");
 
         // Get the head where the meta lives
         let head = doc.querySelector('head');
-        let title = head.querySelector("title");
-        if (title) {
-          title = title.innerText;
+
+        let title = {
+          normal: getMetaValue("title", head),
+          twitter: getMetaValue("[property='twitter:title']", head),
+          facebook: getMetaValue("[property='og:title']", head)
+        }
+        let description = {
+          normal: getMetaValue('[name="description"]', head),
+          twitter: getMetaValue("[property='twitter:description']", head),
+          facebook: getMetaValue("[property='og:description']", head)
+        }
+        let image = {
+          twitter: getMetaValue('[property="twitter:image"]', head),
+        }
+        let general = {
+          robots: getMetaValue('[name="robots"]', head)
         }
 
-        let metas = head.querySelectorAll("meta");
-        let description, twitterImage;
-
-        Array.from(metas).forEach(meta => {
-          if (head.querySelector('[name="title"]')) {
-            title = head.querySelector('[name="title"]').content;
-          }
-          if (head.querySelector('[name="description"]')) {
-            description = head.querySelector('[name="description"]').content;
-          }
-          twitterImage = head.querySelector('[property="twitter:image"]').content;
-
-          console.log(meta);
-        });
-        console.log(twitterImage);
           // Create the html
         let thisGroup = getGroup(link)[0];
         let section = document.querySelector(`[aria-label='${thisGroup}'] .section-items`);
           section.innerHTML += `
           <li>
-          Twitter Image: ${twitterImage}<br>
+          Twitter Image: ${image.twitter}<br>
             <a href="${link}" target="_blank" class="link-wrapper">
-              ${title}
+              TITLE: ${title.normal},<br>
+              TWITTER TITLE: ${title.twitter},<br>
+              FB TITLE: ${title.facebook},
               
             </a>
-            <p>${description}</p>
+            <p>DESCRIPTION: ${description}</p><br>
           </li>`;
 
       }

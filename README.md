@@ -1,5 +1,5 @@
 # pancakesDashboard
-A dashboard page for Hugo websites. Allows for easy page navigation and SEO/SERP/mobile preview of the entire site.
+A dashboard page for static websites. Allows for easy page navigation and SEO/SERP/mobile preview of the entire site.
 
 ## Component overview
 This is a theme component for Hugo, so it can work with your existing theme setup. It's optimized for websites built with pancakesStarter. This component is isolated and all JS/CSS/Layouts will not leak out into your existing theme.
