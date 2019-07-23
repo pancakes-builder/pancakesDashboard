@@ -73,17 +73,9 @@
     let listSidebar = document.querySelector('.groups');
             
     groups.forEach((group, index) => {
-      listSidebar.innerHTML += `<input type="checkbox" id="checkbox${index}" data-filter=".${group}">
+      listSidebar.innerHTML += `
+      <input type="checkbox" id="checkbox${index}" data-filter=".${group}">
       <label for="checkbox${index}">${group}</label>`;
-    //   listContent.innerHTML += `
-    //   <ul class="meta__item" aria-label='${group}'>
-    //     <li>
-    //       <h2>${group}</h2>
-    //     </li>
-    //     <ul class='section-items list'>
-        
-    //     </ul>
-    //   </ul>`;
     });
 
     links.forEach((link, index) => {

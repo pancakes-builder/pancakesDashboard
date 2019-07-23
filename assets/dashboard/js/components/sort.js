@@ -1,4 +1,6 @@
 function startSort() {
+  setCount();
+
   var elem = document.querySelector('#sortableContent');
   var iso = new Isotope( elem, {
     // options
@@ -6,8 +8,11 @@ function startSort() {
     itemSelector: '.the_item',
     getSortData: {
       title: '.title',
+      group: '.group'
     }
   });
+
+  iso.on( 'arrangeComplete', function() {setCount()});
   
   let sortValue = (e) => {
     let thisBtn = e.target;
@@ -31,27 +36,47 @@ function startSort() {
         }
       });
 
-    
-
-      console.log(newCheckedBoxes)
-
       let filterValue = newCheckedBoxes;
 
       iso.arrange({ 
         filter: filterValue 
       });
+      setTimeout(function(){
+        
+        console.log("clicked")
+      }, 1000)
       
-      // function
-    //   iso.arrange({ 
-    //     filter: function( itemElem ) {
-    //     var number = itemElem.querySelector('.number').innerText;
-    //     return parseInt( number, 10 ) > 50;
-    //   }
-    // })
-
     }
+
+    
   }
   document.addEventListener("click", sortValue, false);
+
+
+  // Return the count of the selected
+  function setCount () {
+    
+    let countDiv = document.querySelector('.count');
+
+    countDiv.innerText = getCount();
+    console.log("setcount", countDiv, getCount());
+  }
+  function getCount() {
+    
+    let all = document.querySelectorAll(".the_item");
+
+    let visible = [];
+
+    all.forEach(item => {
+      let display = getComputedStyle(item).display;
+      
+      if (display === "block") {
+        visible.push(item);
+      }
+    });
+    console.log(visible.length)
+    return visible.length;
+  }
 }
 
 
