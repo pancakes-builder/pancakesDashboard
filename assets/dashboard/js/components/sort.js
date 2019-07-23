@@ -20,12 +20,27 @@ function startSort() {
     }
 
     if (thisBtn.closest("[data-filter]")) {
-      let filterValue = thisBtn.getAttribute('data-filter');
+      //let filterValue = thisBtn.getAttribute('data-filter');
+      let checkedBoxes = document.querySelectorAll('[type="checkbox"][data-filter]');
+      
+      let newCheckedBoxes = [];
+
+      checkedBoxes.forEach((box, i) => {
+        if (box.checked === true) {
+          newCheckedBoxes.push(box.getAttribute('data-filter'));
+        }
+      });
+
+    
+
+      console.log(newCheckedBoxes)
+
+      let filterValue = newCheckedBoxes;
 
       iso.arrange({ 
         filter: filterValue 
       });
-      console.log(filterValue, iso)
+      
       // function
     //   iso.arrange({ 
     //     filter: function( itemElem ) {

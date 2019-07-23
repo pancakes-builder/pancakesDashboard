@@ -71,9 +71,10 @@
   function createSections (links) {
     let groups = getGroups(links);
     let listSidebar = document.querySelector('.groups');
-
-    groups.forEach(group => {
-      listSidebar.innerHTML += `<li data-filter=".${group}">${group}</li>`;
+            
+    groups.forEach((group, index) => {
+      listSidebar.innerHTML += `<input type="checkbox" id="checkbox${index}" data-filter=".${group}">
+      <label for="checkbox${index}">${group}</label>`;
     //   listContent.innerHTML += `
     //   <ul class="meta__item" aria-label='${group}'>
     //     <li>
