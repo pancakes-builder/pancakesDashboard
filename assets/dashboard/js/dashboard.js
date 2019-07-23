@@ -71,10 +71,9 @@
   function createSections (links) {
     let groups = getGroups(links);
     let listSidebar = document.querySelector('.groups');
-    let listContent = document.querySelector('.sections');
 
     groups.forEach(group => {
-      listSidebar.innerHTML += `<li>${group}</li>`;
+      listSidebar.innerHTML += `<li data-filter=".${group}">${group}</li>`;
     //   listContent.innerHTML += `
     //   <ul class="meta__item" aria-label='${group}'>
     //     <li>
@@ -122,10 +121,12 @@
         let thisGroup = getGroup(link)[0];
         let section = document.querySelector("#sortableContent");
           section.innerHTML += `
-          <div class="the_item">
-          <li class="title" data-category="${thisGroup}">${title.normal}</li>
+          <div class="the_item ${thisGroup}">
+          <li class="title">${title.normal}</li>
+          <li class="group">${thisGroup}</li>
           </div>`;
 
+          console.log(link)
           if (index === links.length -1) {
             console.log("loaded")
             startSort();
