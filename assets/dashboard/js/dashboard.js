@@ -42,15 +42,21 @@
     }
   }
 
+  let getCharacterCount = (str) => {
+    if (str !== undefined && str !== undefined && str !== false && str !== "") {
+      return str.length;
+    } else {
+      return false;
+    }
+  }
 
   let getMetaValue = (selector, head) => {
-    console.log(selector, head)
+    
     let metaItem = head.querySelector(selector);
-
     if (metaItem) {
-      if (metaItem.innerText !== undefined || metaItem.innerText !== null) {
+      if (metaItem.innerText !== undefined && metaItem.innerText !== null && metaItem.innerText !== "") {
         return metaItem.innerText;
-      } else if ((metaItem.content !== undefined || metaItem.content !== null)) {
+      } else if ((metaItem.content !== undefined && metaItem.content !== null)) {
         return metaItem.content;
       } else {
         return false;
@@ -69,18 +75,18 @@
 
     groups.forEach(group => {
       listSidebar.innerHTML += `<li>${group}</li>`;
-      listContent.innerHTML += `
-      <ul class="list" aria-label='${group}'>
-        <li>
-          <h2>${group}</h2>
-        </li>
-        <ul class='section-items'>
+    //   listContent.innerHTML += `
+    //   <ul class="meta__item" aria-label='${group}'>
+    //     <li>
+    //       <h2>${group}</h2>
+    //     </li>
+    //     <ul class='section-items list'>
         
-        </ul>
-      </ul>`;
+    //     </ul>
+    //   </ul>`;
     });
 
-    links.forEach((link) => {
+    links.forEach((link, index) => {
       link = link.innerHTML;
 
       let getMeta = async(src) => {
@@ -105,27 +111,25 @@
           facebook: getMetaValue("[property='og:description']", head)
         }
         let image = {
+          normal: getMetaValue('[property="twitter:image"]', head),
           twitter: getMetaValue('[property="twitter:image"]', head),
         }
         let general = {
-          robots: getMetaValue('[name="robots"]', head)
+          robots: getMetaValue('[name="robots"]', head),
         }
 
           // Create the html
         let thisGroup = getGroup(link)[0];
-        let section = document.querySelector(`[aria-label='${thisGroup}'] .section-items`);
+        let section = document.querySelector("#sortableContent");
           section.innerHTML += `
-          <li>
-          Twitter Image: ${image.twitter}<br>
-            <a href="${link}" target="_blank" class="link-wrapper">
-              TITLE: ${title.normal},<br>
-              TWITTER TITLE: ${title.twitter},<br>
-              FB TITLE: ${title.facebook},
-              
-            </a>
-            <p>DESCRIPTION: ${description}</p><br>
-          </li>`;
+          <div class="the_item">
+          <li class="title" data-category="${thisGroup}">${title.normal}</li>
+          </div>`;
 
+          if (index === links.length -1) {
+            console.log("loaded")
+            startSort();
+          }
       }
 
       getMeta(link);
@@ -133,6 +137,7 @@
         //ajaxGetContent(link, mode, linkHTML);
     });
     
+
   }
 
   // Return an array of groups based on a link array

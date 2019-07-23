@@ -1,98 +1,58 @@
 {{ define "main" }}
 <div class="pancakesDashboard">
 
-  <div id='hacker-list' class="sections">
-    <input class="search" />
-    <span class="sort" data-sort="page-title">Sort by page Title</span>
+    <div class="flex flex-gap-lg">
+
+    <div class="select">
+      <select class="form-control width-100%" name="selectThis" id="selectThis">
+        <option value="0">Robots Value</option>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+      </select>
+      <svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
+    </div>
+
+      <fieldset id="previewMode">
+        <ul class="radio-list radio-list--custom">
+          <li>
+            <input type="radio" name="radioButton" id="radio1" checked>
+            <label for="list">List</label>
+
+            <input type="radio" name="radioButton" id="radio2">
+            <label for="twitter">Twitter</label>
+
+            <input type="radio" name="radioButton" id="radio3">
+            <label for="google">Google</label>
+
+            <input type="radio" name="radioButton" id="radio3">
+            <label for="facebook">Facebook</label>
+          </li>
+        </ul>
+      </fieldset>
+
+      <fieldset id="">
+        <div class="checkbox-list checkbox-list--custom">
+          <div>
+            <input type="checkbox" id="checkbox1" checked>
+            <label for="checkbox1">Option 1</label>
+            <input type="checkbox" data-sort-value="title" id="checkbox2">
+            <label for="checkbox2">Option 2</label>
+            <input type="checkbox" id="checkbox3">
+            <label for="checkbox3">Option 3</label>
+          </div>
+          <button data-sort-value="title">Title</button>
+        </div>
+      </fieldset>
+    </div>
+
+
+  <div id='sortableContent' class="sections">
+
+
   </div>
-  <!-- get each section, exclude a few sections-->
-  {{ $section := "" }}
-  <!-- let user define the meta image key -->
-  {{ $meta_image := "" }}
   
-  {{ range where .Site.RegularPages "Section" "==" "" }}
-
-  {{ end }}
-  <div class="tabs js-tabs">
-  <ul class="tabs__controls js-tabs__controls" aria-label="Tabs Interface">
-  {{ $query := (where .Site.Sections "Section" "ne" "uploads") }}
-  {{ $query = (where ($query) "Section" "ne" "dashboard")}}
-  {{ range $index, $sections := ($query) }}
-    <li><a href="#tab1Panel{{ $index }}" class="{{ if eq $index 0 }}tabs__control--selected{{ end }}">{{ .Section }}</a></li>
-    {{ end }}
-  </ul>
-
-  <div class="tabs__panels js-tabs__panels">
-
-  {{ $query := (where .Site.Sections "Section" "ne" "uploads") }}
-  {{ $query = (where ($query) "Section" "ne" "dashboard")}}
-  {{ range $index, $sections := ($query) }}
-  <section id="tab1Panel{{ $index }}" class="tabs__panel{{ if eq $index 0 }} tabs__panel--selected{{ end }} js-tabs__panel">
-    <div class="text-component">
-  
-  {{ $section = .Section }}
-  <!--pagination for each section-->
-
-  {{ range .Pages }}
-  
-  <!-- set default title-->
-  {{- $title := "NO TITLE SET" -}}
-  {{- if .Title -}}
-    {{- $title = .Title -}}
-  {{- end -}}
-  {{- $meta := "" -}}
-  {{- $meta_title := $title -}}
-  {{- $meta_description := .Description -}}
-  {{- $meta_image := "/uploads/site/og_image.jpg" -}}
-  {{- with .Params.image -}}
-  {{- $meta_image = . -}}
-  {{- end -}}
-  {{- with .Params.meta -}}
-  {{- $meta = . -}}
-  {{- with .title -}}
-    {{- $meta_title = . -}}
-  {{- end -}}
-  {{- with .description -}}
-    {{- $meta_description = . -}}
-  {{- end -}}
-  {{- with .og_image -}}
-    {{- $meta_image = . -}}
-  {{- end -}}
-  {{- with .image -}}
-    {{- $meta_image = . -}}
-  {{- end -}}
-  {{- end -}}
-  {{ if in $meta_image "images" }}
-  {{ $imgsrc := strings.TrimPrefix "/" $meta_image }}
-    {{ with .Resources.Match $imgsrc }}
-    {{ range . }}
-      {{ $imgsrc = . }}
-      {{ $imgsized := ($imgsrc.Resize "500x q100") }}
-      {{ $meta_image = $imgsized.Permalink }}
-    {{ end }}
-    {{ end }}
-  {{ end }}
-      
-    <div class="itemWrapper">
-    <a target="_blank" href="{{ .Permalink }}">
-      <div class="metaBgImage" style='background-image: url("{{ $meta_image }}");'></div>
-      <div>
-        <span class="title">{{ with $meta_title }}{{ . | safeHTML }}{{ else }}NO META TITLE SET {{ end }}</span>
-        <span class="permalink">{{ .Permalink | safeHTML }}</span>
-        <span class="description">{{ with $meta_description }}{{ . | safeHTML }}{{ else }}NO META SET {{ end }}</span>
-      </div>
-    </a>
-  </div>
-
-
-  {{ end }}
-      </div>
-    </section>
-  {{ end }}
-  </div>
-  </div>
 </div>
-  
+
   
 
   

@@ -7,7 +7,7 @@
 {{ end }}
 
 {{ $tabs := resources.Get "dashboard/js/components/tabs.js" | resources.Minify }}
-{{ $list := resources.Get "dashboard/js/components/list.min.js" | resources.Minify }}
+{{ $list := resources.Get "dashboard/js/dependencies/isotope.js" | resources.Minify }}
 {{ $utils := resources.Get "dashboard/js/util.js" }}
 
 {{ $basejs := slice $utils $tabs $list | resources.Concat "dashboardbase.js" }}
