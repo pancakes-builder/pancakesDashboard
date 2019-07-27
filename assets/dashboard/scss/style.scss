@@ -1,3 +1,5 @@
+@import 'theme-vars';
+
 // Globals
 @import 'base/reset';
 @import 'base/mixins';
@@ -15,16 +17,14 @@
 @import 'base/accessibility';
 @import 'base/util';
 
-// Not Used on every page
-
 //forms
 @import 'components/forms/newsletter';
 @import 'components/forms/select';
 @import 'components/forms/toggle';
 @import 'components/forms/search';
 @import 'components/forms/input_group';
-
 @import 'components/tabs';
 @import 'components/buttonGroup';
 
 //@import 'dashboard';
+@import 'meta';

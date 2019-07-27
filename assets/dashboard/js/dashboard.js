@@ -2,9 +2,7 @@
 // getGroups(links); // return an array of all available groups;
 (function () {
 
-  const main = document.querySelector("main");
-
-  let radios = document.querySelectorAll("#metaToggle input");
+  const sortableContent = document.querySelector("#sortableContent");
 
 
   // Starter function
@@ -27,9 +25,6 @@
       parseXML();
     }
   }, false);
-
-
-
 
 
   function evaluateXML (links) {
@@ -71,8 +66,13 @@
   function createSections (links) {
     let groups = getGroups(links);
     let listSidebar = document.querySelector('.groups');
-            
+    if (groups) {
+      listSidebar.innerHTML += `
+      <input type="checkbox" id="checkbox0" data-filter="*" checked>
+      <label for="checkbox0">Any</label>`;
+    }      
     groups.forEach((group, index) => {
+      index++;
       listSidebar.innerHTML += `
       <input type="checkbox" id="checkbox${index}" data-filter=".${group}">
       <label for="checkbox${index}">${group}</label>`;
@@ -92,40 +92,73 @@
         // Get the head where the meta lives
         let head = doc.querySelector('head');
 
+        let metaData = {
+
+          normal: {
+            title: "normal title",
+            //title: getMetaValue("title", head),
+            description: getMetaValue('[name="description"]', head),
+            image: getMetaValue('[property="twitter:image"]', head)
+          },
+          facebook: {
+            title: "fb title",
+            //title: getMetaValue("[property='og:title']", head),
+            description: getMetaValue("[property='og:description']", head),
+            image: getMetaValue("[property='og:image']", head),
+          }
+        }
         let title = {
           normal: getMetaValue("title", head),
           twitter: getMetaValue("[property='twitter:title']", head),
           facebook: getMetaValue("[property='og:title']", head)
         }
-        let description = {
-          normal: getMetaValue('[name="description"]', head),
-          twitter: getMetaValue("[property='twitter:description']", head),
-          facebook: getMetaValue("[property='og:description']", head)
-        }
-        let image = {
-          normal: getMetaValue('[property="twitter:image"]', head),
-          twitter: getMetaValue('[property="twitter:image"]', head),
-        }
-        let general = {
-          robots: getMetaValue('[name="robots"]', head),
-        }
 
           // Create the html
         let thisGroup = getGroup(link)[0];
-        let section = document.querySelector("#sortableContent");
-          section.innerHTML += `
-          <div class="the_item ${thisGroup}">
-          <li class="title">${title.normal}</li>
-          <li class="group">${thisGroup}</li>
-          </div>`;
 
-          console.log(link)
+        // Get each key and value of object
+        // Create data-meta-category-(key)
+        // Set data-meta-category-(key)="value"
+        
+        
+        let item = document.createElement("div");
+        item.className = "the_item";
+        let thisItem = sortableContent.appendChild(item);
+
+        // sortableContent.innerHTML += `
+        //   <div class="the_item ${thisGroup}" data-group="${thisGroup}">
+        //   <li class="title">${title.normal}</li>
+        //   <li data-group="${thisGroup}">${thisGroup}</li>
+        //   </div>`;
+
           if (index === links.length -1) {
-            console.log("loaded")
             startSort();
           }
+
+          function pullMeta (obj) {
+            var key;
+            var value;
+            
+            for ( var prop in obj ) {
+              key = prop;
+              value = obj[ prop ];
+              //console.log("key", key, "value", value);
+    
+              for ( var pr in value) {
+                k = pr;
+                v = value[ pr ];
+                thisItem.setAttribute(`data-meta-${key}-${k}`, v);
+              }
+              
+            }
+          }
+    
+          pullMeta(metaData);
+
+
       }
 
+      
       getMeta(link);
       
         //ajaxGetContent(link, mode, linkHTML);
@@ -168,86 +201,6 @@
     //console.log('section', cleanSection)
     return cleanSection;
 
-  }
-
-
-  // function checkMode() {
-  //   radios.forEach((radio) => {
-  //     if (radio.checked === true) {
-  //       main.classList.add("mode-" + radio.name);
-  //       if (radio.name === "google") {
-  //         mode = "google";
-  //         getLinks(mode);
-  //       } else if (radio.name === "social") {
-  //         mode = "social";
-  //         getLinks(mode);
-  //       }
-  //     } else {
-  //       main.classList.remove("mode-" + radio.name);
-  //     }
-  //     return mode;
-  //   });
-  // }
-
-  function ajaxGetContent(linkSrc, mode, linkHTML) {
-    fetch(linkSrc /*, options */)
-      .then((response) => response.text())
-      .then((html) => {
-          let parser = new DOMParser();
-          
-          // Parse the text
-          var doc = parser.parseFromString(html, "text/html");
-          var head = doc.querySelector('head');
-          
-          //console.log(head);
-          let pageTitle = head.querySelector("title");
-          //let metaTitle = head.querySelector('[name="title"]').innerHTML;
-          let metas = head.querySelectorAll("meta");
-          
-          if (!pageTitle) {
-            pageTitle = "No Title Set!";
-          }
-          linkHTML.innerText = pageTitle.innerText;
-
-
-          metas.forEach(function (meta, index) {
-            let name = meta.getAttribute("name");
-            let property = meta.getAttribute("property");
-            let content = meta.getAttribute("content");
-            //console.log(meta);
-            if (name && content) {
-              //console.log(name, content);
-              //property = name;
-              getMetaContentByProperty(name, content);
-            } else if (property && content) {
-              //console.log(property, content);
-              getMetaContentByProperty(property, content);
-            }
-          });
-
-          function getMetaContentByProperty(property, content){
-            //console.log(property);
-            //Get Facebook, Linkedin, Twitter preview image
-            // Property=""
-            // og:image
-            // twitter:image
-            if (property.match(/image/)) {
-              //console.log(link);
-                setPreviewImage(content);
-              
-            }
-            //console.log(document.git adquerySelector("meta[name='"+name+"']"));
-            function setPreviewImage() {
-              //link.querySelector(".metaBgImage").style.backgroundImage = `url('${content}')`;
-              
-            }
-          }
-          
-      })
-      
-      .catch((error) => {
-          console.warn(error);
-      });
   }
 
 

@@ -20,25 +20,25 @@
     </div>
 
       <fieldset id="previewMode">
-        <ul class="radio-list radio-list--custom">
+        <ul data-toggle="mode" class="radio-list radio-list--custom">
           <li>
-            <input type="radio" name="radioButton" id="radio1" checked>
+            <input value="list" type="radio" name="radioButton" id="radio1" checked>
             <label for="list">List</label>
 
-            <input type="radio" name="radioButton" id="radio2">
-            <label for="twitter">Twitter</label>
-
-            <input type="radio" name="radioButton" id="radio3">
+            <input value="google" type="radio" name="radioButton" id="radio3">
             <label for="google">Google</label>
 
-            <input type="radio" name="radioButton" id="radio3">
+            <input value="twitter" type="radio" name="radioButton" id="radio2">
+            <label for="twitter">Twitter</label>
+
+            <input value="facebook" type="radio" name="radioButton" id="radio3">
             <label for="facebook">Facebook</label>
           </li>
         </ul>
       </fieldset>
 
       <!-- <fieldset id="">
-        <div class="checkbox-list checkbox-list--custom">
+        <div class="checkbox-list checkbox-list--custom" data-filter-group="attributes">
           <div>
             <input type="checkbox" id="checkbox1" checked>
             <label for="checkbox1">Option 1</label>

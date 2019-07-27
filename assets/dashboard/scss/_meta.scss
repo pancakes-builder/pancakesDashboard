@@ -1,0 +1,21 @@
+#sortableContent {
+
+    ul, li {
+        list-style: none;
+    }
+    &[data-mode="list"] {
+
+    }
+
+    &[data-mode="google"] {
+        
+    }
+
+    &[data-mode="facebook"] {
+
+    }
+
+    &[data-mode="twitter"] {
+
+    }
+}
