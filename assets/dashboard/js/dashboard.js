@@ -95,14 +95,14 @@
         let metaData = {
 
           normal: {
-            title: "normal title",
-            //title: getMetaValue("title", head),
+            //title: "normal title",
+            title: getMetaValue("title", head),
             description: getMetaValue('[name="description"]', head),
             image: getMetaValue('[property="twitter:image"]', head)
           },
           facebook: {
-            title: "fb title",
-            //title: getMetaValue("[property='og:title']", head),
+            //title: "fb title",
+            title: getMetaValue("[property='og:title']", head),
             description: getMetaValue("[property='og:description']", head),
             image: getMetaValue("[property='og:image']", head),
           }
@@ -123,8 +123,11 @@
         
         let item = document.createElement("div");
         item.className = "the_item";
+        item.innerHTML = `
+        <div class="meta_title">Text</div>`
         let thisItem = sortableContent.appendChild(item);
 
+        console.log(thisItem)
         // sortableContent.innerHTML += `
         //   <div class="the_item ${thisGroup}" data-group="${thisGroup}">
         //   <li class="title">${title.normal}</li>
@@ -147,7 +150,7 @@
               for ( var pr in value) {
                 k = pr;
                 v = value[ pr ];
-                thisItem.setAttribute(`data-meta-${key}-${k}`, v);
+                thisItem.setAttribute(`meta-${key}-${k}`, v);
               }
               
             }

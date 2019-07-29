@@ -2,7 +2,7 @@ function startSort() {
   
   setCount();
 
-  let mode = getMode();
+  //let mode = getMode();
   var elem = document.querySelector('#sortableContent');
   var qsRegex;
   var searchBtn = document.querySelector('#searchInputX');
@@ -134,22 +134,57 @@ function startSort() {
 
 }
 
+function getAttributes(item) {
+  let attrs = [].slice.call(item.attributes);
+  return attrs;
+}
 
+function checkAttribute(name, attr) {
+  if (name.includes(attr) && name)
+}
+let changeContent = (items) => {
 
+  items.forEach((item, index) => {
+    //console.log(item.attributes)
+    let attrs = getAttributes(item);
+
+    attrs.forEach((attr, index) => {
+      let name = attr.name;
+      let value = attr.value;
+      let titleHtml = item.querySelector('.meta_title');
+
+      if (name.includes("meta")) {
+        console.log(attr);
+        if (name.includes("title")) {
+          titleHtml.innerText = value;
+        }
+        if (name.includes("image")) {
+          item.innerHTML = `
+          <img src="${value}" class="meta_image">`
+        }
+      }
+    });
+  });
+  iso.arrange();
+}
 
 let toggleMode = (e) => {
-  let thisItem;
+  let thisItem, mode;
   let toggleBtns = document.querySelector('[data-toggle]');
   let toggleValues = toggleBtns.querySelectorAll('input');
+  let theItems = document.querySelectorAll('.the_item');
 
   function setMode () {
     toggleValues.forEach((input, index) => {
       let val = input.value;
+      let mode = val;
 
       if (input.checked) {
         sortableContent.setAttribute('data-mode', val);
+        
+          changeContent(theItems, mode);
       }
-    })
+    });
   }
   
 

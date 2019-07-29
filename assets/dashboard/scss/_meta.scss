@@ -4,18 +4,34 @@
         list-style: none;
     }
     &[data-mode="list"] {
-
+        .the_item {
+            .meta_image {
+                display: none;
+            }
+        }
     }
 
     &[data-mode="google"] {
-        
+        .the_item {
+            .meta_image {
+                display: none;
+            }
+        }
     }
 
     &[data-mode="facebook"] {
-
+        .the_item {
+            .meta_image {
+                display: block;
+            }
+        }
     }
 
     &[data-mode="twitter"] {
-
+        .the_item {
+            .meta_image {
+                display: block;
+            }
+        }
     }
 }
