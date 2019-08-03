@@ -6,9 +6,11 @@
         count:
         <span class="count"></span>
       </div>
-      
-        <button data-sort-value="title">Sort by Title</button>
-        <button data-sort-value="group">Sort by Group</button>
+      <div class="flex" data-sort-group="section">
+          <div data-sort-value="title">Title</div>
+          <div data-sort-value="group">Group</div>
+      </div>
+        
 
     <div class="select">
       <select class="form-control width-100%" name="selectThis" id="selectThis">
@@ -37,19 +39,6 @@
         </ul>
       </fieldset>
 
-      <!-- <fieldset id="">
-        <div class="checkbox-list checkbox-list--custom" data-filter-group="attributes">
-          <div>
-            <input type="checkbox" id="checkbox1" checked>
-            <label for="checkbox1">Option 1</label>
-            <input type="checkbox" data-sort-value="title" id="checkbox2">
-            <label for="checkbox2">Option 2</label>
-            <input type="checkbox" id="checkbox3">
-            <label for="checkbox3">Option 3</label>
-          </div>
-          <button data-sort-value="title">Title</button>
-        </div>
-      </fieldset> -->
     </div>
 
 

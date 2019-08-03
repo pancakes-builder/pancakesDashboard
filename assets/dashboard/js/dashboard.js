@@ -64,17 +64,18 @@
 
   // Create groups of links
   function createSections (links) {
+    
     let groups = getGroups(links);
     let listSidebar = document.querySelector('.groups');
     if (groups) {
       listSidebar.innerHTML += `
-      <input type="checkbox" id="checkbox0" data-filter="*" checked>
+      <input type="checkbox" id="checkbox0" data-filter-value="*" checked>
       <label for="checkbox0">Any</label>`;
     }      
     groups.forEach((group, index) => {
       index++;
       listSidebar.innerHTML += `
-      <input type="checkbox" id="checkbox${index}" data-filter=".${group}">
+      <input type="checkbox" id="checkbox${index}" data-filter-value=".${group}">
       <label for="checkbox${index}">${group}</label>`;
     });
 
@@ -92,8 +93,13 @@
         // Get the head where the meta lives
         let head = doc.querySelector('head');
 
-        let metaData = {
+        // Create the html
+        let thisGroup = getGroup(link)[0];
 
+        let metaData = {
+          all: {
+            group: thisGroup
+          },
           normal: {
             //title: "normal title",
             title: getMetaValue("title", head),
@@ -107,14 +113,8 @@
             image: getMetaValue("[property='og:image']", head),
           }
         }
-        let title = {
-          normal: getMetaValue("title", head),
-          twitter: getMetaValue("[property='twitter:title']", head),
-          facebook: getMetaValue("[property='og:title']", head)
-        }
 
-          // Create the html
-        let thisGroup = getGroup(link)[0];
+        
 
         // Get each key and value of object
         // Create data-meta-category-(key)
@@ -123,11 +123,9 @@
         
         let item = document.createElement("div");
         item.className = "the_item";
-        item.innerHTML = `
-        <div class="meta_title">Text</div>`
         let thisItem = sortableContent.appendChild(item);
 
-        console.log(thisItem)
+        //console.log(item, metaData)
         // sortableContent.innerHTML += `
         //   <div class="the_item ${thisGroup}" data-group="${thisGroup}">
         //   <li class="title">${title.normal}</li>

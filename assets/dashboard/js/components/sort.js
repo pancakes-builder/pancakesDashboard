@@ -1,6 +1,8 @@
 function startSort() {
+console.log("startsort...")
   
   setCount();
+  
 
   //let mode = getMode();
   var elem = document.querySelector('#sortableContent');
@@ -10,35 +12,54 @@ function startSort() {
   let buttonFilter;
 
   var iso = new Isotope( elem, {
+    
     // options
     layoutMode: 'vertical',
     itemSelector: '.the_item',
     getSortData: {
-      title: '.title',
+      title: '[meta-normal-title]',
       // 
       group: function (elem) {
-        return elem.getAttribute('data-group');
+        console.log("groiup", elem.getAttribute('meta-all-group'))
+        return elem.getAttribute('meta-all-group');
       }
     },
     filter: function (elem) {
+      //console.log("filtering....", buttonFilters)
       // The value to search
       qsRegex = new RegExp( searchBtn.value, 'gi' );
 
       var searchResult = searchBtn ? elem.innerText.match( qsRegex ) : true;
       var q;
 
+      buttonFilter = concatValues(buttonFilters);
+
       if (buttonFilter !== "" && buttonFilter !== null && buttonFilter !== undefined) {
-        buttonFilter = concatValues(buttonFilters);
+        
+        //console.log(buttonFilter)
+        let selected = buttonFilter.split(" ");
+        //console.log(selected, elem)
         //q = elem.querySelector(buttonFilter);
-      } else {
-        buttonFilter = "*";
+        selected.forEach((selectedValue, index) => {
+          let attributes = getAttributes(elem);
+          //console.log(attributes)
+          if (elem.classList.contains(selectedValue)) {
+            q = true;
+            //console.log(q)
+          }
+        });
+      }
+      if (buttonFilter === "*") {
+        console.log("true")
+        q = true;
       }
       
-      if (buttonFilter === "*" || elem.classList.contains(buttonFilter)) {
-        q = true;
-      } else {
-        q = false;
-      }
+      // if (buttonFilter === "*" || elem.classList.contains(buttonFilter)) {
+      //   q = true;
+      // } else {
+      //   q = false;
+      // }
+      
       return searchResult && q;
     }
   });
@@ -47,44 +68,50 @@ function startSort() {
   iso.on( 'arrangeComplete', function() {setCount()});
   
   let sortValue = (e) => {
-    let thisBtn = e.target;
 
-    if (e.type === "click") {
-      if (thisBtn.closest("[data-sort-value]")) {
-      
-        let sortValue = thisBtn.getAttribute('data-sort-value');
-        // Select the key to sort by. Sort by the matching attribute value
-        iso.arrange({ sortBy: sortValue });
-      }
-  
-      if (thisBtn.closest("[data-filter]")) {
-        //let filterValue = thisBtn.getAttribute('data-filter');
-        let group = thisBtn.closest("[data-filter-group]");
-        let checkedBoxes = group.querySelectorAll('[type="checkbox"][data-filter]');
+    let sortBtns = document.querySelectorAll('[data-sort-value]');
+    let sortValue, filterValue;
 
-        let checked = [];
-        group = group.getAttribute('data-filter-group');
-        
-        //console.log(checked)
-        checkedBoxes.forEach((box, i) => {
-          if (box.checked === true) {
-            let attr = box.getAttribute('data-filter');
-            checked.push(attr);
-          }
-        });
-        buttonFilters[ group ] = checked;
-  
-        iso.arrange();
+    // Check each sort value for the active sortable state
+    sortBtns.forEach(sortBtn => {
+      if (sortBtn.classList.contains("active")) {
+        sortValue = sortBtn.getAttribute('data-sort-value');
       }
-    }
+    });
+     
+    // Select the key to sort by. Sort by the matching attribute value
+    iso.arrange({ sortBy: sortValue });
 
-    if (e.type === "keyup") {
-      if (thisBtn.closest("#searchInputX")) {
-        iso.arrange();
+
+    let filterBtns = document.querySelectorAll('[data-filter-value]')
+    let filterGroup;
+    let checkedValues = [];
+    
+    filterBtns.forEach(filterBtn => {
+      filterGroup = filterBtn.closest("[data-filter-group]");
+      if (filterGroup) {
+        filterGroup = filterGroup.getAttribute('data-filter-group');
+      } else {
+        filterGroup = "all";
       }
-    }
+      if (filterBtn.checked === true) {
+        let attr = filterBtn.getAttribute('data-filter-value');
+        checkedValues.push(attr);
+      }
+
+    });
+
+    buttonFilters[ filterGroup ] = checkedValues
+
+    iso.arrange();
   }
-  document.addEventListener("click", sortValue, false);
+
+  document.addEventListener("click", function(e) {
+    if (e.target.closest('[data-sort-value]')) {
+      e.target.closest('[data-sort-value]').classList.toggle("active");
+    }
+    sortValue();
+  }, false);
   document.addEventListener("keyup", sortValue, false);
 
   
@@ -132,73 +159,78 @@ function startSort() {
     return value;
   }
 
-}
 
-function getAttributes(item) {
-  let attrs = [].slice.call(item.attributes);
-  return attrs;
-}
+  function getAttributes(item) {
+    let attrs = [].slice.call(item.attributes);
+    return attrs;
+  }
 
-function checkAttribute(name, attr) {
-  if (name.includes(attr) && name)
-}
-let changeContent = (items) => {
+  function checkAttribute(name, attr) {
+    if (name.includes(attr) && name) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  let changeContent = (items) => {
 
-  items.forEach((item, index) => {
-    //console.log(item.attributes)
-    let attrs = getAttributes(item);
+    items.forEach((item, index) => {
+      //console.log(item.attributes)
+      let attrs = getAttributes(item);
 
-    attrs.forEach((attr, index) => {
-      let name = attr.name;
-      let value = attr.value;
-      let titleHtml = item.querySelector('.meta_title');
+      attrs.forEach((attr, index) => {
+        let name = attr.name;
+        let value = attr.value;
 
-      if (name.includes("meta")) {
-        console.log(attr);
-        if (name.includes("title")) {
-          titleHtml.innerText = value;
+        if (name.includes("meta")) {
+          
+          if (checkAttribute(name, "title")) {
+            //console.log("title", value)
+            let metaTitle = document.createElement("div");
+            metaTitle.className = "meta_title";
+            metaTitle.innerText = value;
+            item.appendChild(metaTitle);
+          }
+          if (checkAttribute(name, "image")) {
+            item.innerHTML += `
+            <img src="${value}" class="meta_image">`;
+          }
+          if (checkAttribute(name, "description")) {
+            item.innerHTML += `
+            <div class="meta_description">${value}</div>`;
+          }
         }
-        if (name.includes("image")) {
-          item.innerHTML = `
-          <img src="${value}" class="meta_image">`
-        }
-      }
+      });
     });
-  });
-  iso.arrange();
-}
+    iso.arrange();
+    //console.log(iso)
+  }
 
-let toggleMode = (e) => {
-  let thisItem, mode;
-  let toggleBtns = document.querySelector('[data-toggle]');
-  let toggleValues = toggleBtns.querySelectorAll('input');
-  let theItems = document.querySelectorAll('.the_item');
 
-  function setMode () {
+  let toggleMode = (e) => {
+    let toggleBtns = document.querySelector('[data-toggle]');
+    let toggleValues = toggleBtns.querySelectorAll('input');
+    let theItems = document.querySelectorAll('.the_item');
+
     toggleValues.forEach((input, index) => {
       let val = input.value;
       let mode = val;
 
       if (input.checked) {
+        //console.log("togglemode")
         sortableContent.setAttribute('data-mode', val);
         
           changeContent(theItems, mode);
       }
     });
+    
   }
-  
-
-  if (e.type === "DOMContentLoaded") {
-    setMode();
-  }
-  if (e.type === "click") {
-    thisItem = e.target.closest('[data-toggle] input');
-    if (thisItem) {
-      setMode();
+  sortValue();
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-toggle] input')) {
+      toggleMode();
     }
-  }
-  
+  }, false);
+  toggleMode();
+  //document.addEventListener('DOMContentLoaded', toggleMode, false);
 }
-
-document.addEventListener('click', toggleMode, false);
-document.addEventListener('DOMContentLoaded', toggleMode, false);
