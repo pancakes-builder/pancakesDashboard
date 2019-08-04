@@ -75,7 +75,7 @@
     groups.forEach((group, index) => {
       index++;
       listSidebar.innerHTML += `
-      <input type="checkbox" id="checkbox${index}" data-filter-value=".${group}">
+      <input type="checkbox" id="checkbox${index}" data-filter-value="${group}">
       <label for="checkbox${index}">${group}</label>`;
     });
 

@@ -20,39 +20,74 @@ console.log("startsort...")
       title: '[meta-normal-title]',
       // 
       group: function (elem) {
-        console.log("groiup", elem.getAttribute('meta-all-group'))
+        //console.log("groiup", elem.getAttribute('meta-all-group'))
         return elem.getAttribute('meta-all-group');
       }
     },
     filter: function (elem) {
       //console.log("filtering....", buttonFilters)
+
       // The value to search
       qsRegex = new RegExp( searchBtn.value, 'gi' );
 
       var searchResult = searchBtn ? elem.innerText.match( qsRegex ) : true;
       var q;
 
-      buttonFilter = concatValues(buttonFilters);
+      var target = '', match = [];
 
-      if (buttonFilter !== "" && buttonFilter !== null && buttonFilter !== undefined) {
+      for ( var prop in buttonFilters ) {
+        target = prop.toString();
         
-        //console.log(buttonFilter)
-        let selected = buttonFilter.split(" ");
-        //console.log(selected, elem)
-        //q = elem.querySelector(buttonFilter);
-        selected.forEach((selectedValue, index) => {
-          let attributes = getAttributes(elem);
-          //console.log(attributes)
-          if (elem.classList.contains(selectedValue)) {
-            q = true;
-            //console.log(q)
-          }
-        });
+
+        let targetItem = elem.getAttribute(target);
+
+        console.log("target", target,targetItem, buttonFilters[prop]);
+
+        // If OR. If a match is found within a group, set the group variable to true;
+        if (target !== null && target !== undefined) {
+          buttonFilters[prop].forEach(val => {
+            console.log(val)
+            if (targetItem === val) {
+              q = true;
+            }
+            if (val === "*" || val === "all") {
+              q = true;
+            }
+            if (val === "true" && targetItem !== "false") {
+              q = true;
+            }
+          });
+        }
+
+        // if AND each condition in a group is true;
       }
-      if (buttonFilter === "*") {
-        console.log("true")
-        q = true;
-      }
+      console.log("selected", elem)
+
+      // buttonFilter = concatValues(buttonFilters);
+
+      // if (buttonFilter !== "" && buttonFilter !== null && buttonFilter !== undefined) {
+      //     //console.log(selectorValue)
+      //   //console.log(buttonFilter)
+      //   let selected = buttonFilter.split(" ");
+      //   //console.log("selected", buttonFilters)
+
+      //   //q = elem.querySelector(buttonFilter);
+      //   selected.forEach((selectedValue, index) => {
+      //     //console.log(selectedValue)
+      //     if (selectedValue ==="*" ) {
+      //       q = true;
+      //     }
+      //     if (elem.classList.contains(selectedValue)) {
+      //       q = true;
+      //       //console.log(q)
+      //     }
+          
+      //   });
+      // }
+      // if (buttonFilter === "*") {
+      //   console.log("*****")
+      //   q = true;
+      // }
       
       // if (buttonFilter === "*" || elem.classList.contains(buttonFilter)) {
       //   q = true;
@@ -83,35 +118,39 @@ console.log("startsort...")
     iso.arrange({ sortBy: sortValue });
 
 
-    let filterBtns = document.querySelectorAll('[data-filter-value]')
-    let filterGroup;
-    let checkedValues = [];
+    let filterGroups = document.querySelectorAll('[data-key]');
+    //let checkedValues = [];
     
-    filterBtns.forEach(filterBtn => {
-      filterGroup = filterBtn.closest("[data-filter-group]");
-      if (filterGroup) {
-        filterGroup = filterGroup.getAttribute('data-filter-group');
-      } else {
-        filterGroup = "all";
-      }
-      if (filterBtn.checked === true) {
-        let attr = filterBtn.getAttribute('data-filter-value');
-        checkedValues.push(attr);
-      }
+    filterGroups.forEach((group, index) => {
+      let filterBtns = group.querySelectorAll('[data-filter-value]');
+      let filterTarget = group.getAttribute('data-key');
+      let checkedValues = [];
 
-    });
+      filterBtns.forEach(filterBtn => {
+        if (filterBtn.checked === true) {
+          let attr = filterBtn.getAttribute('data-filter-value');
+          checkedValues.push(attr);
+        }
+        buttonFilters[ filterTarget ] = checkedValues;
+      });
 
-    buttonFilters[ filterGroup ] = checkedValues
+    })
+
+
+
+    
 
     iso.arrange();
   }
 
+  // For sort buttons that are clicked, toggle the active state. The filter checks for the active state.
   document.addEventListener("click", function(e) {
     if (e.target.closest('[data-sort-value]')) {
       e.target.closest('[data-sort-value]').classList.toggle("active");
     }
     sortValue();
   }, false);
+
   document.addEventListener("keyup", sortValue, false);
 
   
@@ -152,6 +191,7 @@ console.log("startsort...")
       let v = obj[ prop ].toString();
       // v = v.replace("\.", "");
       value += v;
+      console.log(obj)
     }
     value = value.toString();
     value = value.split(',').join(" ").split('.').join('');
