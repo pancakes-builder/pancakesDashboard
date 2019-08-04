@@ -31,9 +31,10 @@ console.log("startsort...")
       qsRegex = new RegExp( searchBtn.value, 'gi' );
 
       var searchResult = searchBtn ? elem.innerText.match( qsRegex ) : true;
-      var q;
+      var q = true;
+      var p = {};
 
-      var target = '', match = [];
+      var target = '';
 
       for ( var prop in buttonFilters ) {
         target = prop.toString();
@@ -41,27 +42,38 @@ console.log("startsort...")
 
         let targetItem = elem.getAttribute(target);
 
-        console.log("target", target,targetItem, buttonFilters[prop]);
+        //console.log("target", target,targetItem, buttonFilters[prop]);
 
         // If OR. If a match is found within a group, set the group variable to true;
         if (target !== null && target !== undefined) {
-          buttonFilters[prop].forEach(val => {
-            console.log(val)
+          buttonFilters[prop].forEach((val, index) => {
             if (targetItem === val) {
-              q = true;
+              p[target] = true;
             }
-            if (val === "*" || val === "all") {
-              q = true;
+            else if (val === "*" || val === "all") {
+              p[target] = true;
             }
-            if (val === "true" && targetItem !== "false") {
-              q = true;
+            else if (val === "true" && targetItem !== "false") {
+              p[target] = true;
+            } else if (p[target] !== true) {
+              p[target] = false;
             }
           });
         }
 
         // if AND each condition in a group is true;
+        for ( var v in p ) {
+          if (p[v] === false) {
+            q = false;
+          }
+        }
       }
-      console.log("selected", elem)
+      
+      //console.log("OBJ", p)
+      
+
+      console.log("P", p, "q", q)
+      
 
       // buttonFilter = concatValues(buttonFilters);
 
