@@ -17,7 +17,7 @@ console.log("startsort...")
     layoutMode: 'vertical',
     itemSelector: '.the_item',
     getSortData: {
-      title: '[meta-normal-title]',
+      title: '[meta-list-title]',
       // 
       group: function (elem) {
         //console.log("groiup", elem.getAttribute('meta-all-group'))
@@ -50,7 +50,7 @@ console.log("startsort...")
             if (targetItem === val) {
               p[target] = true;
             }
-            else if (val === "*" || val === "all") {
+            else if (val === "all") {
               p[target] = true;
             }
             else if (val === "true" && targetItem !== "false") {
@@ -69,52 +69,19 @@ console.log("startsort...")
         }
       }
       
-      //console.log("OBJ", p)
-      
-
-      console.log("P", p, "q", q)
-      
-
-      // buttonFilter = concatValues(buttonFilters);
-
-      // if (buttonFilter !== "" && buttonFilter !== null && buttonFilter !== undefined) {
-      //     //console.log(selectorValue)
-      //   //console.log(buttonFilter)
-      //   let selected = buttonFilter.split(" ");
-      //   //console.log("selected", buttonFilters)
-
-      //   //q = elem.querySelector(buttonFilter);
-      //   selected.forEach((selectedValue, index) => {
-      //     //console.log(selectedValue)
-      //     if (selectedValue ==="*" ) {
-      //       q = true;
-      //     }
-      //     if (elem.classList.contains(selectedValue)) {
-      //       q = true;
-      //       //console.log(q)
-      //     }
-          
-      //   });
-      // }
-      // if (buttonFilter === "*") {
-      //   console.log("*****")
-      //   q = true;
-      // }
-      
-      // if (buttonFilter === "*" || elem.classList.contains(buttonFilter)) {
-      //   q = true;
-      // } else {
-      //   q = false;
-      // }
-      
       return searchResult && q;
     }
   });
 
   // Update the running total after iso finishes arranging the items
-  iso.on( 'arrangeComplete', function() {setCount()});
+  iso.on( 'arrangeComplete', function() {
+    setCount();
+    //console.log("arrange complete")
+  });
   
   let sortValue = (e) => {
+
+    console.log("sorting...")
 
     let sortBtns = document.querySelectorAll('[data-sort-value]');
     let sortValue, filterValue;
@@ -146,12 +113,7 @@ console.log("startsort...")
         buttonFilters[ filterTarget ] = checkedValues;
       });
 
-    })
-
-
-
-    
-
+    });
     iso.arrange();
   }
 
@@ -160,7 +122,31 @@ console.log("startsort...")
     if (e.target.closest('[data-sort-value]')) {
       e.target.closest('[data-sort-value]').classList.toggle("active");
     }
+    if (e.target.closest('[data-filter-value="*"]')) {
+      let setChecked = e.target.closest('[data-filter-value="*"]').parentNode.querySelectorAll('input[type="checkbox"]');
+      if (e.target.closest('[data-filter-value="*"]').checked === true) {
+        toggleChecked(true);
+      } else {
+        toggleChecked(false);
+      }
+      
+      function toggleChecked(state) {
+        setChecked.forEach(check => {
+          if (state === true) {
+            check.setAttribute('checked', "");
+          } else {
+            check.removeAttribute('checked')
+          }
+          
+        });
+      }
+      
+    }
+    if (e.target.closest('[data-toggle] input')) {
+      toggleMode();
+    }
     sortValue();
+    
   }, false);
 
   document.addEventListener("keyup", sortValue, false);
@@ -168,11 +154,12 @@ console.log("startsort...")
   
 
   function getMode () {
-    return sortableContent.getAttribute('data-mode');
+    return document.body.getAttribute('data-mode');
   }
 
   // Return the count of the selected
   function setCount () {
+    //console.log("set count")
     
     let countDiv = document.querySelector('.count');
 
@@ -188,7 +175,7 @@ console.log("startsort...")
     all.forEach(item => {
       let display = getComputedStyle(item).display;
       
-      if (display === "block") {
+      if (display !== "none") {
         visible.push(item);
       }
     });
@@ -196,20 +183,20 @@ console.log("startsort...")
   }
 
   // flatten object by concatting values
-  function concatValues( obj ) {
-    var value = '';
+  // function concatValues( obj ) {
+  //   var value = '';
 
-    for ( var prop in obj ) {
-      let v = obj[ prop ].toString();
-      // v = v.replace("\.", "");
-      value += v;
-      console.log(obj)
-    }
-    value = value.toString();
-    value = value.split(',').join(" ").split('.').join('');
+  //   for ( var prop in obj ) {
+  //     let v = obj[ prop ].toString();
+  //     // v = v.replace("\.", "");
+  //     value += v;
+  //     console.log(obj)
+  //   }
+  //   value = value.toString();
+  //   value = value.split(',').join(" ").split('.').join('');
     
-    return value;
-  }
+  //   return value;
+  // }
 
 
   function getAttributes(item) {
@@ -217,14 +204,17 @@ console.log("startsort...")
     return attrs;
   }
 
-  function checkAttribute(name, attr) {
-    if (name.includes(attr) && name) {
+  function checkAttribute(name, attr, value) {
+    if (name.includes(attr) && name && value !== "false") {
       return true;
     } else {
       return false;
     }
   }
-  let changeContent = (items) => {
+  let changeContent = (items, mode) => {
+    document.body.setAttribute('data-mode', mode);
+    //console.log("mode", mode);
+    
 
     items.forEach((item, index) => {
       //console.log(item.attributes)
@@ -233,33 +223,125 @@ console.log("startsort...")
       attrs.forEach((attr, index) => {
         let name = attr.name;
         let value = attr.value;
+        let metaPrefix = `meta-${mode}`;
+        let stringLength = value.length;
+        
+        // Based on list, facebook, twitter, or Google mode
+        if (name.includes(metaPrefix)) {
+          //console.log(name)
 
-        if (name.includes("meta")) {
-          
-          if (checkAttribute(name, "title")) {
+          if (checkAttribute(name, "image", value)) {
+            item.querySelector(".meta_image").style.backgroundImage = `url('${value}')`;
+          }
+
+          if (checkAttribute(name, "title", value)) {
             //console.log("title", value)
-            let metaTitle = document.createElement("div");
-            metaTitle.className = "meta_title";
-            metaTitle.innerText = value;
-            item.appendChild(metaTitle);
+            item.querySelector(".meta_title").innerText = value;
+            if (mode === "google") {
+              if (stringLength > 65) {
+                value = value.substring(0, 65);
+                value = value + "...";
+              }
+            }
+            if (mode === "facebook") {
+              if (stringLength > 40) {
+                value = value.substring(0, 40);
+                value = value + "...";
+              }
+            }
+            if (mode === "twitter") {
+              if (stringLength > 40) {
+                value = value.substring(0, 40);
+                value = value + "...";
+              }
+            }
           }
-          if (checkAttribute(name, "image")) {
-            item.innerHTML += `
-            <img src="${value}" class="meta_image">`;
+
+          if (checkAttribute(name, "url", value)) {
+            //console.log("title", value)
+            item.querySelector(".meta_url").innerText = value;
           }
-          if (checkAttribute(name, "description")) {
-            item.innerHTML += `
-            <div class="meta_description">${value}</div>`;
+
+          if (checkAttribute(name, "description", value)) {
+            
+            
+            if (mode === "google") {
+              if (stringLength > 300) {
+                value = value.substring(0, 300);
+                value = value + "...";
+              }
+            }
+            if (mode === "facebook") {
+              if (stringLength > 110) {
+                value = value.substring(0, 110);
+                value = value + "...";
+              }
+            }
+            if (mode === "twitter") {
+              if (stringLength > 200) {
+                value = value.substring(0, 200);
+                value = value + "...";
+              }
+            }
+            item.querySelector(".meta_description").innerText = value;
           }
         }
       });
+      
     });
-    iso.arrange();
     //console.log(iso)
+    sortValue();
+    
+  }
+
+  let changeFilters = (items, mode) => {
+
+    // Create an object that looks like this:
+    // list-title: [];
+    let filters = {};
+
+    getKeyName();
+    function getKeyName () {
+      items.forEach((item, i) => {
+        let attrs = getAttributes(item);
+        
+        attrs.forEach((attr, index) => {
+          let name = attr.name;
+          let keyName = name.replace("meta-", "");
+          let metaPrefix = `meta-${mode}`;
+
+            if (name.includes(metaPrefix)) {
+              filters[keyName] = [];
+            }
+        });
+      });
+    }
+
+    items.forEach((item, i) => {
+      let attrs = getAttributes(item);
+      
+      attrs.forEach((attr, index) => {
+        
+        let name = attr.name;
+        newName = name.replace("meta-", "");
+        let value = attr.value;
+        let metaPrefix = `meta-${mode}`;
+        let stringLength = value.length;
+
+        if (name.includes(metaPrefix)) {
+          filters[newName].push(value);
+        }
+        //filters[newName] = a;
+      });
+    });
+    
+
+    console.log(filters);
+    
   }
 
 
-  let toggleMode = (e) => {
+  function toggleMode (e) {
     let toggleBtns = document.querySelector('[data-toggle]');
     let toggleValues = toggleBtns.querySelectorAll('input');
     let theItems = document.querySelectorAll('.the_item');
@@ -269,20 +351,21 @@ console.log("startsort...")
       let mode = val;
 
       if (input.checked) {
-        //console.log("togglemode")
-        sortableContent.setAttribute('data-mode', val);
-        
+          console.log("mode", mode)
           changeContent(theItems, mode);
+          changeFilters(theItems, mode);
       }
     });
     
   }
+
   sortValue();
-  document.addEventListener('click', function(e) {
-    if (e.target.closest('[data-toggle] input')) {
-      toggleMode();
-    }
-  }, false);
+
+  // document.addEventListener('click', function(e) {
+  //   if (e.target.closest('[data-toggle] input')) {
+  //     toggleMode();
+  //   }
+  // }, false);
   toggleMode();
   //document.addEventListener('DOMContentLoaded', toggleMode, false);
 }

@@ -1,21 +1,39 @@
 {{ define "main" }}
-<div class="pancakesDashboard">
+<div class="pb__dashboardContent">
 
-    <div class="flex flex-gap-lg">
-      <div class="total">
-        count:
-        <span class="count"></span>
+    <div class="pb__toolbar pb__toolbar__top flex">
+        <div class="search-input search-input--icon-left">
+            <input class="form-control width-100%" type="search" name="searchInputX" id="searchInputX" placeholder="Search selection...">
+            <button class="search-input__btn">
+              <svg class="icon" viewBox="0 0 24 24"><title>Search selection</title><g stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" stroke="currentColor" fill="none" stroke-miterlimit="10"><line x1="22" y1="22" x2="15.656" y2="15.656"></line><circle cx="10" cy="10" r="8"></circle></g></svg>
+            </button>
+        </div>
+          <button class="reset anim-menu-btn js-anim-menu-btn" aria-controls="modal1" aria-label="Toggle menu">
+            <i class="anim-menu-btn__icon anim-menu-btn__icon--close" aria-hidden="true"></i>
+          </button>
       </div>
-      <div class="flex" data-sort-group="section">
+
+    <div class="pb__toolbar pb__toolbar__bottom flex">
+      
+
+      <div class="flex" data-sort-group="meta-list-title">
           <div data-sort-value="title">Title</div>
           <div data-sort-value="group">Group</div>
       </div>
 
-      <div data-key="meta-facebook-image">
-      <input type="checkbox" id="checkbox0" data-filter-value="true" checked>
-      <label for="checkbox0">Has FB Image</label>
-      <input type="checkbox" id="checkbox0" data-filter-value="false">
-      <label for="checkbox0">Doesn't has FB Image</label>
+      <ul data-key="meta-facebook-image" class="">
+        <li>
+            <input type="radio" name="radioButton1" value="radio_has_fbimage" id="radio_has_fbimage" data-filter-value="true" checked>
+            <label for="radio_has_fbimage">Has FB Image</label>
+            <input type="radio" name="radioButton1" value="radio_no_fbimage" id="radio_no_fbimage" data-filter-value="false">
+            <label for="radio_no_fbimage">Doesn't has FB Image</label>
+        </li>
+      
+      </ul>
+
+      <div data-key="meta-facebook-description">
+          <input type="checkbox" id="checkbox_has_fbdescription" data-filter-value="true">
+          <label for="checkbox_has_fbdescription">Has FB Description</label>
       </div>
         
 
@@ -28,35 +46,58 @@
       <svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
     </div>
 
-      <fieldset id="previewMode">
-        <ul data-toggle="mode" class="radio-list radio-list--custom">
-          <li>
-            <input value="list" type="radio" name="radioButton" id="radio1" checked>
-            <label for="list">List</label>
-
-            <input value="google" type="radio" name="radioButton" id="radio3">
-            <label for="google">Google</label>
-
-            <input value="twitter" type="radio" name="radioButton" id="radio2">
-            <label for="twitter">Twitter</label>
-
-            <input value="facebook" type="radio" name="radioButton" id="radio3">
-            <label for="facebook">Facebook</label>
-          </li>
-        </ul>
-      </fieldset>
+      
 
     </div>
+
+    
 
 
   <div id='sortableContent' class="sections">
 
 
   </div>
+
+  <div class="pb__loading_box">
+      <div class="pb__loader"><div></div><div></div><div></div><div></div></div>
+  </div>
+  
   
 </div>
 
-  
+<div class="modal js-modal" id="modal1" data-animation="on">
+  <div class="modal__content max-width-xs" role="alertdialog" tabindex="-1" aria-labelledby="modalTitle1" aria-describedby="modalDescription1">
+    <header class="modal__header">
+      <h4 class="text-truncate" id="modalTitle1">Options</h4>
+    </header>
+
+    <div class="modal__body">
+      <div class="text-component">
+            <form>
+              <fieldset class="margin-bottom-md">
+                <div class="floating-label margin-bottom-md">
+                  <label class="form-label" for="inputName">Sitemap</label>
+                  <input class="form-control width-100%" type="text" name="inputDomainX" id="sitemap" value="/sitemap.xml">
+                </div>
+              </fieldset>
+            </form>
+             
+          
+      </div>
+    </div>
+
+    <footer class="modal__footer">
+      <div class="flex justify-end flex-gap-xs">
+        <button class="btn btn--subtle js-modal__close">Cancel</button>
+        <button class="btn btn--primary">Save</button>
+      </div>
+    </footer>
+  </div>
+
+  <button class="reset modal__close-btn js-modal__close">
+    <svg class="icon" viewBox="0 0 16 16"><title>Close modal window</title><g stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"><line x1="13.5" y1="2.5" x2="2.5" y2="13.5"></line><line x1="2.5" y1="2.5" x2="13.5" y2="13.5"></line></g></svg>
+  </button>
+</div>
 
   
 {{ end }}

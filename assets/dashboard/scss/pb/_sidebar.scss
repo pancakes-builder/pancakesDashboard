@@ -1,0 +1,11 @@
+.pb__ {
+    &sidebar {
+        ul {
+            display: flex;
+            flex-direction: column;
+        }
+        li {
+            text-transform: capitalize;
+        }
+    }
+}

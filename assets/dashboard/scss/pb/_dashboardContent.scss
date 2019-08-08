@@ -1,0 +1,13 @@
+.pb__ {
+    &dashboardContent {
+        overflow-y: scroll;
+        height: 100vh;
+
+        &.is-loading {
+            #sortableContent {
+                visibility: hidden;
+                opacity: 0;
+            }
+        }
+    }
+}

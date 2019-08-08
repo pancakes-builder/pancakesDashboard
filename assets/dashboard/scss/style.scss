@@ -16,15 +16,26 @@
 @import 'base/visibility';
 @import 'base/accessibility';
 @import 'base/util';
+@import 'base/skin';
+
+
+@import 'pancakesDashboard';
+
+// Pancakes components using the pb__ prefix
+@import 'pb/dashboardContent';
+@import 'pb/toolbar';
+@import 'pb/loader';
+@import 'pb/sidebar';
 
 //forms
-@import 'components/forms/newsletter';
 @import 'components/forms/select';
 @import 'components/forms/toggle';
 @import 'components/forms/search';
-@import 'components/forms/input_group';
+@import 'components/forms/fields';
 @import 'components/tabs';
 @import 'components/buttonGroup';
+@import 'components/modal';
+@import 'components/hamburger';
 
 //@import 'dashboard';
 @import 'meta';

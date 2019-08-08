@@ -6,17 +6,19 @@
 
 {{ end }}
 
-{{ $tabs := resources.Get "dashboard/js/components/tabs.js" | resources.Minify }}
+{{ $floating := resources.Get "dashboard/js/components/floating-labels.js" }}
+{{ $modal := resources.Get "dashboard/js/components/modal.js" }}
 {{ $list := resources.Get "dashboard/js/dependencies/isotope.js" | resources.Minify }}
 {{ $utils := resources.Get "dashboard/js/util.js" }}
 
-{{ $basejs := slice $utils $tabs $list | resources.Concat "dashboardbase.js" }}
+{{ $basejs := slice $utils $list $modal $floating | resources.Concat "dashboardbase.js" }}
 
 <script type="text/javascript" src="{{ $basejs.Permalink }}"></script>
 
 {{ $dashboardjs := resources.Get "dashboard/js/dashboard.js" }}
 {{ $dashboard := $dashboardjs | resources.Minify | resources.Fingerprint }}
 <script type="text/javascript" src="{{ $dashboard.Permalink }}" integrity="{{ $dashboard.Data.Integrity }}"></script>
+
 
 {{ $sort := resources.Get "dashboard/js/components/sort.js" }}
 {{ $sort := $sort | resources.Minify | resources.Fingerprint }}

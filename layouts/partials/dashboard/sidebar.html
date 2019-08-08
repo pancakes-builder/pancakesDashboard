@@ -1,26 +1,44 @@
-<aside class="ds-sub-nav">
+<aside class="ds-sub-nav pb__sidebar">
 <!-- radio buttons-->
-<div class="margin-bottom-md">
-<label class="form-label margin-bottom-xxs" for="inputDomainX">Domain:</label>
-<div class="input-group">
-    <input class="form-control flex-grow" type="text" name="inputDomainX" id="sitemap" value="/sitemap.xml">
-    <button class="btn btn--primary"></button>
-</div>
-</div>
-
-<div class="search-input search-input--icon-right">
-    <input class="form-control width-100%" type="search" name="searchInputX" id="searchInputX" placeholder="Search...">
-    <button class="search-input__btn">
-        <svg class="icon" viewBox="0 0 24 24"><title>Search</title><g stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" stroke="currentColor" fill="none" stroke-miterlimit="10"><line x1="22" y1="22" x2="15.656" y2="15.656"></line><circle cx="10" cy="10" r="8"></circle></g></svg>
-    </button>
-</div>
 
 {{ partial "dashboard/modebuttons.html" . }}
 
-<h3>Sections: </h3>
-<ul class="groups" data-key="meta-all-group">
+<h3>Mode</h3>
 
-    <li data-filter-value="*">All</li>
-    
-</ul>
+<div class="margin-bottom-lg">
+    <fieldset id="previewMode">
+    <ul data-toggle="mode" class="radio-list radio-list--custom">
+        <li>
+            <input value="list" type="radio" name="radioButton" id="radio1" checked>
+            <label for="list">List</label>
+        </li>
+
+        <li>
+            <input value="google" type="radio" name="radioButton" id="radio3">
+            <label for="google">Google</label>
+        </li>
+
+        <li>
+            <input value="twitter" type="radio" name="radioButton" id="radio2">
+            <label for="twitter">Twitter</label>
+        </li>
+        
+        <li>
+            <input value="facebook" type="radio" name="radioButton" id="radio3">
+            <label for="facebook">Facebook</label>
+        </li>
+        </li>
+    </ul>
+    </fieldset>
+</div>
+
+<div>
+    <h3>Sections (<span class="count"></span>)</h3>
+    <ul class="groups" data-key="meta-all-group">
+
+        
+    </ul>
+</div>
+
+
 </aside>
