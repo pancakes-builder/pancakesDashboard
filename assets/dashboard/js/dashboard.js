@@ -21,6 +21,7 @@
     // Start evaluating the links
     evaluateXML(pages);
   }
+
   document.querySelector('#sitemap').addEventListener("keyup", () => {
     if (event.key === "Enter") {
       parseXML();
@@ -123,6 +124,7 @@
             //title: "normal title",
             title: getMetaValue("title", head),
             description: getMetaValue('[name="description"]', head),
+            robots: getMetaValue('[name="robots"]', head),
             url: fullUrl
           },
           google: {
