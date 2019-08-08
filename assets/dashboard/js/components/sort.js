@@ -398,11 +398,13 @@ console.log("startsort...")
           <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>
           <label for="checkbox-${groupName}">${label}</label>`;
         } else if (type === "select") {
+          if (!thisGroup.querySelector("select")) {
+            let selectDiv = document.createElement("select");
+            thisGroup.appendChild(selectDiv);
+          }
+          thisGroup = thisGroup.querySelector("select");
             valDiv = `
-              <option value="${value}">${label}</option>
-            </select>
-            
-          </div>`;
+              <option value="${value}">${label}</option>`;
         }
         thisGroup.innerHTML += valDiv;
       }
