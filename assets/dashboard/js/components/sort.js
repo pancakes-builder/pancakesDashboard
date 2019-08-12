@@ -3,7 +3,23 @@ console.log("startsort...")
   
   setCount();
   
+  function getMode () {
+    let toggleBtns = document.querySelector('[data-toggle]');
+    let toggleValues = toggleBtns.querySelectorAll('input');
+    let newMode;
 
+    toggleValues.forEach((input, index) => {
+      let val = input.value;
+      let mode = val;
+
+      if (input.checked) {
+        newMode = mode;
+      }
+    });
+    return newMode;
+  }
+
+  console.log("getmode", getMode())
   //let mode = getMode();
   var elem = document.querySelector('#sortableContent');
   const dynamicBar = document.querySelector(".pb__dynamic_filter ");
@@ -11,23 +27,26 @@ console.log("startsort...")
   var searchBtn = document.querySelector('#searchInputX');
   let filters = {};
   let buttonFilters = {};
-  let buttonFilter;
-
+  
   var iso = new Isotope( elem, {
-    
+
     // options
     layoutMode: 'vertical',
     itemSelector: '.the_item',
     getSortData: {
-      title: '[meta-list-title]',
-      // 
+      //title: '[meta-list-title]',
+      title: function(elem) {
+        
+        let sortKey = "meta-" + getMode() + "-title";
+        return elem.getAttribute(sortKey)
+      },
       group: function (elem) {
         //console.log("groiup", elem.getAttribute('meta-all-group'))
         return elem.getAttribute('meta-all-group');
       }
     },
     filter: function (elem) {
-      //console.log("filtering....", buttonFilters)
+      console.log("filtering....", "meta-" + getMode() + "-title");
 
       // The value to search
       qsRegex = new RegExp( searchBtn.value, 'gi' );
@@ -95,8 +114,17 @@ console.log("startsort...")
       }
     });
      
+    let sortKey;
+
+    if (sortValue) {
+      sortKey = sortValue.replace(`meta-${getMode()}-`, "");
+    }
+    
     // Select the key to sort by. Sort by the matching attribute value
-    iso.arrange({ sortBy: sortValue });
+    //let sortKey = `${sortValue}`;
+    console.log("sortValue", sortKey)
+    iso.updateSortData;
+    iso.arrange({ sortBy: 'title' });
 
 
     let filterGroups = document.querySelectorAll('[data-key]');
@@ -155,9 +183,7 @@ console.log("startsort...")
 
   
 
-  function getMode () {
-    return document.body.getAttribute('data-mode');
-  }
+  
 
   // Return the count of the selected
   function setCount () {
@@ -341,7 +367,7 @@ console.log("startsort...")
       });
     });
     changeBar(filters);
-    console.log(filters);
+    console.log("filters",filters);
     
   }
 
@@ -354,10 +380,16 @@ console.log("startsort...")
       let values = obj[key];
       
       if (values.length > 0) {
-        console.log(obj)
+        console.log("changeBar", obj)
 
         if (values.indexOf("false") != -1) {
           dataFilterValue = false;
+          createFilter(key, values, dataFilterValue);
+        } else if (values.length <= 4) {
+          dataFilterValue = "key";
+          createFilter(key, values, dataFilterValue);
+        } else {
+          dataFilterValue = key;
           createFilter(key, values, dataFilterValue);
         }
         
@@ -372,19 +404,26 @@ console.log("startsort...")
       //<div class="select"><select class="form-control width-100%" name="selectThis" id="selectThis"></select>
       //<svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
       //</div>
+      let groupLabel = document.createElement("label");
+      groupLabel.className = "pb__filter_title";
       let thisGroup = dynamicBar.appendChild(groupDiv);
+      thisGroup.appendChild(groupLabel);
+
 
       if (dataFilterValue === false) {
         groupDiv.setAttribute('data-key', groupKey);
         createFilterHTML("checkbox", `Missing ${groupName}`, false);
         createFilterHTML("checkbox", `Has ${groupName}`, true);
+      } else if (dataFilterValue === "key") {
+        groupDiv.setAttribute('data-key', groupKey);
+        groupLabel.innerText = groupKey;
+
+        groupValues.forEach(val => {
+          createFilterHTML("checkbox", `${val}`, val);
+        });
       } else {
         groupDiv.setAttribute('data-sort-group', groupKey);
-        
-        groupValues.forEach(val => {
-          
-          
-        });
+        createFilterHTML("text", `${groupName}`, groupKey);
       }
       function createFilterHTML (type, label, value) {
         let valDiv;
@@ -405,6 +444,9 @@ console.log("startsort...")
           thisGroup = thisGroup.querySelector("select");
             valDiv = `
               <option value="${value}">${label}</option>`;
+        } else if (type === "text") {
+          valDiv = `
+          <div data-sort-value="${value}">${value}</div>`
         }
         thisGroup.innerHTML += valDiv;
       }

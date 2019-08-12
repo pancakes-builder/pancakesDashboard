@@ -131,7 +131,8 @@
             //title: "fb title",
             title: getMetaValue("title", head),
             description: getMetaValue('[name="description"]', head),
-            url: fullUrl
+            url: fullUrl,
+            robots: getMetaValue('[name="robots"]', head),
           },
           facebook: {
             //title: "fb title",
