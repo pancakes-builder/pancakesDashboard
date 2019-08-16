@@ -151,8 +151,15 @@ console.log("startsort...")
 
   // For sort buttons that are clicked, toggle the active state. The filter checks for the active state.
   document.addEventListener("click", function(e) {
+
+    let sortBtns = document.querySelectorAll('[data-sort-value]');
     if (e.target.closest('[data-sort-value]')) {
+      
+      sortBtns.forEach(sortBtn => {
+        sortBtn.classList.remove("active");
+      })
       e.target.closest('[data-sort-value]').classList.toggle("active");
+
     }
     if (e.target.closest('[data-filter-value="*"]')) {
       let setChecked = e.target.closest('[data-filter-value="*"]').parentNode.querySelectorAll('input[type="checkbox"]');
@@ -390,7 +397,7 @@ console.log("startsort...")
 
   function changeBar(obj) {
     dynamicBar.innerHTML = `
-    <div class='pb__sortable_group'><label>Sort by: </label></div>
+    <div class='pb__sortable_group btns'></div>
     <div class='pb__filter_group'><label>Filter by: </label></div>`;
 
     for (var key in obj) {
@@ -429,31 +436,37 @@ console.log("startsort...")
       //<div class="select"><select class="form-control width-100%" name="selectThis" id="selectThis"></select>
       //<svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
       //</div>
-      let groupLabel = document.createElement("label");
-      groupLabel.className = "pb__filter_title";
       
       
       let filterGroup = document.querySelector(".pb__filter_group")
       let sortGroup = document.querySelector(".pb__sortable_group");
       //let thisGroup = dynamicBar.appendChild(groupDiv);
-      let groupDiv = document.createElement("div");
-      let thisGroup = filterGroup.appendChild(groupDiv);
-      filterGroup.appendChild(groupLabel);
+
+      let filterLabel = document.createElement("label");
+      filterLabel.className = "pb__filter_title";
+      let filterDiv = document.createElement("div");
+      let fGroup = filterGroup.appendChild(filterDiv);
+      filterGroup.appendChild(filterLabel);
+
+      let sortLabel = document.createElement("label");
+      let sortDiv = document.createElement("div");
+      let sGroup = filterGroup.appendChild(sortDiv);
+      sortGroup.appendChild(sortLabel);
 
 
       if (dataFilterValue === false) {
-        groupDiv.setAttribute('data-key', groupKey);
+        fGroup.setAttribute('data-key', groupKey);
         createFilterHTML("checkbox", `Missing ${groupName}`, false);
         createFilterHTML("checkbox", `Has ${groupName}`, true);
       } else if (dataFilterValue === "key") {
-        groupDiv.setAttribute('data-key', groupKey);
-        groupLabel.innerText = groupKey;
+        fGroup.setAttribute('data-key', groupKey);
+        filterLabel.innerText = groupKey;
 
         groupValues.forEach(val => {
           createFilterHTML("checkbox", `${val}`, val);
         });
       } else {
-        groupDiv.setAttribute('data-sort-group', groupKey);
+        sGroup.setAttribute('data-sort-group', groupKey);
         createFilterHTML("text", `${groupName}`, groupKey);
       }
       function createFilterHTML (type, label, value) {
@@ -461,14 +474,15 @@ console.log("startsort...")
 
         if (type === "radio") {
           valDiv = `
-          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">
-          <label for="radioButton-${groupName}">${label}</label>`;
-          groupDiv.innerHTML += valDiv;
+          <label for="radioButton-${groupName}">${label}</label>
+          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">`;
+          filterDiv.innerHTML += valDiv;
         } else if (type === "checkbox") {
           valDiv = `
-          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>
-          <label for="checkbox-${groupName}">${label}</label>`;
-          groupDiv.innerHTML += valDiv;
+          <label for="checkbox-${groupName}">${label}</label>
+          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>`;
+          
+          filterDiv.innerHTML += valDiv;
         } else if (type === "select") {
           if (!thisGroup.querySelector("select")) {
             let selectDiv = document.createElement("select");
@@ -477,12 +491,12 @@ console.log("startsort...")
           thisGroup = thisGroup.querySelector("select");
             valDiv = `
               <option value="${value}">${label}</option>`;
-              groupDiv.innerHTML += valDiv;
+              sortDiv.innerHTML += valDiv;
         } else if (type === "text") {
           //thisGroup = document.querySelector(".pb__sortable_filters");
           let sortName = value.replace(`meta-${getMode()}-`, "");
           valDiv = `
-          <div data-sort-value="${value}">${sortName}</div>`;
+          <div class="btn" data-sort-value="${value}">${sortName}</div>`;
           sortGroup.innerHTML += valDiv;
         }
         
@@ -504,10 +518,6 @@ console.log("startsort...")
       let mode = val;
 
       if (input.checked) {
-          console.log("mode", mode)
-          //iso.updateSortData;
-          //buttonFilters = {};
-          //iso.reloadItems();
           changeContent(theItems, mode);
           changeFilters(theItems, mode);
           

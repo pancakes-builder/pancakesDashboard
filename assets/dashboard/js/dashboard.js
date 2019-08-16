@@ -79,7 +79,7 @@
   function createSections (links) {
     console.log("starting links", links)
     let cProgressBar = document.getElementsByClassName('js-c-progress-bar')[0];
-    dashboardContent.classList.add("is-loading");
+    Util.pbLoadingAnimation(true);
     
     let groups = getGroups(links);
     let listSidebar = document.querySelector('.groups');
@@ -175,7 +175,7 @@
 
           if (index === links.length -1) {
             startSort();
-            dashboardContent.classList.remove("is-loading");
+            Util.pbLoadingAnimation(false);
           }
 
           function pullMeta (obj) {

@@ -2,10 +2,6 @@
     &toolbar {
         align-items: center;
         justify-content: space-between;
-
-        .active {
-            color: red;
-        }
     }
 
     &toolbar__top {
@@ -16,8 +12,12 @@
 
     &sortable_group {
         display: flex;
+    }
 
-        div {
+    &filter_group {
+        display: flex;
+
+        > label {
             margin-right: 15px;
         }
     }

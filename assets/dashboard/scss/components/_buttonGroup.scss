@@ -53,7 +53,7 @@ Descr: Group of connected buttons
   }
 }
 
-.btns__btn--selected {
+.btns__btn--selected, .active {
   background-color: var(--color-primary);
   color: var(--color-white);
   @include fontSmooth;

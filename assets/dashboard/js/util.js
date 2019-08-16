@@ -1,6 +1,18 @@
 // Utility function
 function Util () {};
 
+
+// Loading anmimation
+
+Util.pbLoadingAnimation = function (state) {
+
+  if (state === true) {
+    document.body.classList.add("is-loading");
+  } else {
+    document.body.classList.remove("is-loading");
+  }
+  
+}
 /* 
 	class manipulation functions
 */
