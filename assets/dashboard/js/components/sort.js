@@ -38,15 +38,15 @@ console.log("startsort...")
       title: function(elem) {
         
         let sortKey = "meta-" + getMode() + "-title";
-        return elem.getAttribute(sortKey)
+        return elem.getAttribute(sortKey);
       },
       group: function (elem) {
-        //console.log("groiup", elem.getAttribute('meta-all-group'))
-        return elem.getAttribute('meta-all-group');
+        let sortKey = "meta-" + getMode() + "-group";
+        return elem.getAttribute(sortKey);
       }
     },
     filter: function (elem) {
-      console.log("filtering....", "meta-" + getMode() + "-title");
+      //console.log("filtering....", buttonFilters);
 
       // The value to search
       qsRegex = new RegExp( searchBtn.value, 'gi' );
@@ -63,7 +63,7 @@ console.log("startsort...")
 
         let targetItem = elem.getAttribute(target);
 
-        //console.log("target", target,targetItem, buttonFilters[prop]);
+        //console.log("target", p, "buttonfilters", buttonFilters);
 
         // If OR. If a match is found within a group, set the group variable to true;
         if (target !== null && target !== undefined) {
@@ -71,9 +71,9 @@ console.log("startsort...")
             if (targetItem === val) {
               p[target] = true;
             }
-            else if (val === "all") {
-              p[target] = true;
-            }
+            // else if (val === "all") {
+            //   p[target] = true;
+            // }
             else if (val === "true" && targetItem !== "false") {
               p[target] = true;
             } else if (p[target] !== true) {
@@ -88,8 +88,8 @@ console.log("startsort...")
             q = false;
           }
         }
+
       }
-      
       return searchResult && q;
     }
   });
@@ -101,7 +101,7 @@ console.log("startsort...")
   });
   
   let sortValue = (e) => {
-
+    buttonFilters = {};
     console.log("sorting...")
 
     let sortBtns = document.querySelectorAll('[data-sort-value]');
@@ -122,9 +122,9 @@ console.log("startsort...")
     
     // Select the key to sort by. Sort by the matching attribute value
     //let sortKey = `${sortValue}`;
-    console.log("sortValue", sortKey)
-    iso.updateSortData;
-    iso.arrange({ sortBy: 'title' });
+    //console.log("sortValue", sortKey)
+    
+    //iso.arrange({ sortBy: sortKey });
 
 
     let filterGroups = document.querySelectorAll('[data-key]');
@@ -144,6 +144,8 @@ console.log("startsort...")
       });
 
     });
+    //iso.arrange();
+    iso.arrange({ sortBy: sortKey });
     iso.arrange();
   }
 
@@ -199,6 +201,7 @@ console.log("startsort...")
     let all = document.querySelectorAll(".the_item");
 
     let visible = [];
+    //console.log("visible", visible)
 
     all.forEach(item => {
       let display = getComputedStyle(item).display;
@@ -290,6 +293,11 @@ console.log("startsort...")
             item.querySelector(".meta_url").innerText = value;
           }
 
+          if (checkAttribute(name, "relativeLinks", value)) {
+            item.querySelector(".meta_relative_urls").innerText = value;
+            
+          }
+
           if (checkAttribute(name, "description", value)) {
             
             
@@ -371,8 +379,19 @@ console.log("startsort...")
     
   }
 
+  function listUniqueValues (arr) {
+    var counts = {};
+    for (var i = 0; i < arr.length; i++) {
+        counts[arr[i]] = 1 + (counts[arr[i]] || 0);
+    }
+    return counts;
+  }
+  
+
   function changeBar(obj) {
-    dynamicBar.innerHTML = "";
+    dynamicBar.innerHTML = `
+    <div class='pb__sortable_group'><label>Sort by: </label></div>
+    <div class='pb__filter_group'><label>Filter by: </label></div>`;
 
     for (var key in obj) {
       let dataFilterValue;
@@ -381,14 +400,20 @@ console.log("startsort...")
       
       if (values.length > 0) {
         console.log("changeBar", obj)
+        console.log("unique values", listUniqueValues(obj[key]))
 
+        // A value is missing, so create a filter that lets us display items with a missing value
         if (values.indexOf("false") != -1) {
           dataFilterValue = false;
           createFilter(key, values, dataFilterValue);
-        } else if (values.length <= 4) {
+        } 
+        
+        else if (values.length <= 4) {
           dataFilterValue = "key";
           createFilter(key, values, dataFilterValue);
-        } else {
+        } 
+        else {
+          
           dataFilterValue = key;
           createFilter(key, values, dataFilterValue);
         }
@@ -400,14 +425,20 @@ console.log("startsort...")
     function createFilter (groupName, groupValues, dataFilterValue) {
 
       let groupKey = "meta-" + groupName;
-      let groupDiv = document.createElement("div");
+      
       //<div class="select"><select class="form-control width-100%" name="selectThis" id="selectThis"></select>
       //<svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
       //</div>
       let groupLabel = document.createElement("label");
       groupLabel.className = "pb__filter_title";
-      let thisGroup = dynamicBar.appendChild(groupDiv);
-      thisGroup.appendChild(groupLabel);
+      
+      
+      let filterGroup = document.querySelector(".pb__filter_group")
+      let sortGroup = document.querySelector(".pb__sortable_group");
+      //let thisGroup = dynamicBar.appendChild(groupDiv);
+      let groupDiv = document.createElement("div");
+      let thisGroup = filterGroup.appendChild(groupDiv);
+      filterGroup.appendChild(groupLabel);
 
 
       if (dataFilterValue === false) {
@@ -426,16 +457,18 @@ console.log("startsort...")
         createFilterHTML("text", `${groupName}`, groupKey);
       }
       function createFilterHTML (type, label, value) {
-        let valDiv;
+        let valDiv, sortDiv;
 
         if (type === "radio") {
           valDiv = `
           <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">
           <label for="radioButton-${groupName}">${label}</label>`;
+          groupDiv.innerHTML += valDiv;
         } else if (type === "checkbox") {
           valDiv = `
           <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>
           <label for="checkbox-${groupName}">${label}</label>`;
+          groupDiv.innerHTML += valDiv;
         } else if (type === "select") {
           if (!thisGroup.querySelector("select")) {
             let selectDiv = document.createElement("select");
@@ -444,11 +477,15 @@ console.log("startsort...")
           thisGroup = thisGroup.querySelector("select");
             valDiv = `
               <option value="${value}">${label}</option>`;
+              groupDiv.innerHTML += valDiv;
         } else if (type === "text") {
+          //thisGroup = document.querySelector(".pb__sortable_filters");
+          let sortName = value.replace(`meta-${getMode()}-`, "");
           valDiv = `
-          <div data-sort-value="${value}">${value}</div>`
+          <div data-sort-value="${value}">${sortName}</div>`;
+          sortGroup.innerHTML += valDiv;
         }
-        thisGroup.innerHTML += valDiv;
+        
       }
     }
 
@@ -468,8 +505,12 @@ console.log("startsort...")
 
       if (input.checked) {
           console.log("mode", mode)
+          //iso.updateSortData;
+          //buttonFilters = {};
+          //iso.reloadItems();
           changeContent(theItems, mode);
           changeFilters(theItems, mode);
+          
       }
     });
     

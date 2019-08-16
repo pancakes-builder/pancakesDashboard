@@ -2,11 +2,23 @@
     &toolbar {
         align-items: center;
         justify-content: space-between;
+
+        .active {
+            color: red;
+        }
     }
 
     &toolbar__top {
         .search-input {
             flex-basis: 50%;
+        }
+    }
+
+    &sortable_group {
+        display: flex;
+
+        div {
+            margin-right: 15px;
         }
     }
     

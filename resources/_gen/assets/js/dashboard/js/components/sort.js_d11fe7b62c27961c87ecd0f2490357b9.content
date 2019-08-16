@@ -1,0 +1,52 @@
+function startSort(){console.log("startsort...")
+setCount();function getMode(){let toggleBtns=document.querySelector('[data-toggle]');let toggleValues=toggleBtns.querySelectorAll('input');let newMode;toggleValues.forEach((input,index)=>{let val=input.value;let mode=val;if(input.checked){newMode=mode;}});return newMode;}
+console.log("getmode",getMode())
+var elem=document.querySelector('#sortableContent');const dynamicBar=document.querySelector(".pb__dynamic_filter ");var qsRegex;var searchBtn=document.querySelector('#searchInputX');let filters={};let buttonFilters={};var iso=new Isotope(elem,{layoutMode:'vertical',itemSelector:'.the_item',getSortData:{title:function(elem){let sortKey="meta-"+getMode()+"-title";return elem.getAttribute(sortKey);},group:function(elem){let sortKey="meta-"+getMode()+"-group";return elem.getAttribute(sortKey);}},filter:function(elem){qsRegex=new RegExp(searchBtn.value,'gi');var searchResult=searchBtn?elem.innerText.match(qsRegex):true;var q=true;var p={};var target='';for(var prop in buttonFilters){target=prop.toString();let targetItem=elem.getAttribute(target);if(target!==null&&target!==undefined){buttonFilters[prop].forEach((val,index)=>{if(targetItem===val){p[target]=true;}
+else if(val==="true"&&targetItem!=="false"){p[target]=true;}else if(p[target]!==true){p[target]=false;}});}
+for(var v in p){if(p[v]===false){q=false;}}}
+return searchResult&&q;}});iso.on('arrangeComplete',function(){setCount();});let sortValue=(e)=>{buttonFilters={};console.log("sorting...")
+let sortBtns=document.querySelectorAll('[data-sort-value]');let sortValue,filterValue;sortBtns.forEach(sortBtn=>{if(sortBtn.classList.contains("active")){sortValue=sortBtn.getAttribute('data-sort-value');}});let sortKey;if(sortValue){sortKey=sortValue.replace(`meta-${getMode()}-`,"");}
+let filterGroups=document.querySelectorAll('[data-key]');filterGroups.forEach((group,index)=>{let filterBtns=group.querySelectorAll('[data-filter-value]');let filterTarget=group.getAttribute('data-key');let checkedValues=[];filterBtns.forEach(filterBtn=>{if(filterBtn.checked===true){let attr=filterBtn.getAttribute('data-filter-value');checkedValues.push(attr);}
+buttonFilters[filterTarget]=checkedValues;});});iso.arrange({sortBy:sortKey});iso.arrange();}
+document.addEventListener("click",function(e){if(e.target.closest('[data-sort-value]')){e.target.closest('[data-sort-value]').classList.toggle("active");}
+if(e.target.closest('[data-filter-value="*"]')){let setChecked=e.target.closest('[data-filter-value="*"]').parentNode.querySelectorAll('input[type="checkbox"]');if(e.target.closest('[data-filter-value="*"]').checked===true){toggleChecked(true);}else{toggleChecked(false);}
+function toggleChecked(state){setChecked.forEach(check=>{if(state===true){check.setAttribute('checked',"");}else{check.removeAttribute('checked')}});}}
+if(e.target.closest('[data-toggle] input')){toggleMode();}
+sortValue();},false);document.addEventListener("keyup",sortValue,false);function setCount(){let countDiv=document.querySelector('.count');countDiv.innerText=getCount();}
+function getCount(){let all=document.querySelectorAll(".the_item");let visible=[];all.forEach(item=>{let display=getComputedStyle(item).display;if(display!=="none"){visible.push(item);}});return visible.length;}
+function getAttributes(item){let attrs=[].slice.call(item.attributes);return attrs;}
+function checkAttribute(name,attr,value){if(name.includes(attr)&&name&&value!=="false"){return true;}else{return false;}}
+let changeContent=(items,mode)=>{document.body.setAttribute('data-mode',mode);items.forEach((item,index)=>{let attrs=getAttributes(item);attrs.forEach((attr,index)=>{let name=attr.name;let value=attr.value;let metaPrefix=`meta-${mode}`;let stringLength=value.length;if(name.includes(metaPrefix)){if(checkAttribute(name,"image",value)){item.querySelector(".meta_image").style.backgroundImage=`url('${value}')`;}
+if(checkAttribute(name,"title",value)){item.querySelector(".meta_title").innerText=value;if(mode==="google"){if(stringLength>65){value=value.substring(0,65);value=value+"...";}}
+if(mode==="facebook"){if(stringLength>40){value=value.substring(0,40);value=value+"...";}}
+if(mode==="twitter"){if(stringLength>40){value=value.substring(0,40);value=value+"...";}}}
+if(checkAttribute(name,"url",value)){item.querySelector(".meta_url").innerText=value;}
+if(checkAttribute(name,"relativeLinks",value)){item.querySelector(".meta_relative_urls").innerText=value;}
+if(checkAttribute(name,"description",value)){if(mode==="google"){if(stringLength>300){value=value.substring(0,300);value=value+"...";}}
+if(mode==="facebook"){if(stringLength>110){value=value.substring(0,110);value=value+"...";}}
+if(mode==="twitter"){if(stringLength>200){value=value.substring(0,200);value=value+"...";}}
+item.querySelector(".meta_description").innerText=value;}}});});sortValue();}
+let changeFilters=(items,mode)=>{filters={};getKeyName();function getKeyName(){items.forEach((item,i)=>{let attrs=getAttributes(item);attrs.forEach((attr,index)=>{let name=attr.name;let keyName=name.replace("meta-","");let metaPrefix=`meta-${mode}`;if(name.includes(metaPrefix)){filters[keyName]=[];}});});}
+items.forEach((item,i)=>{let attrs=getAttributes(item);attrs.forEach((attr,index)=>{let name=attr.name;newName=name.replace("meta-","");let value=attr.value;let metaPrefix=`meta-${mode}`;let stringLength=value.length;if(name.includes(metaPrefix)){if(filters[newName].indexOf(value)==-1){filters[newName].push(value);}}});});changeBar(filters);console.log("filters",filters);}
+function listUniqueValues(arr){var counts={};for(var i=0;i<arr.length;i++){counts[arr[i]]=1+(counts[arr[i]]||0);}
+return counts;}
+function changeBar(obj){dynamicBar.innerHTML=`
+    <div class='pb__sortable_group'><label>Sort by: </label></div>
+    <div class='pb__filter_group'><label>Filter by: </label></div>`;for(var key in obj){let dataFilterValue;let values=obj[key];if(values.length>0){console.log("changeBar",obj)
+console.log("unique values",listUniqueValues(obj[key]))
+if(values.indexOf("false")!=-1){dataFilterValue=false;createFilter(key,values,dataFilterValue);}
+else if(values.length<=4){dataFilterValue="key";createFilter(key,values,dataFilterValue);}
+else{dataFilterValue=key;createFilter(key,values,dataFilterValue);}}}
+function createFilter(groupName,groupValues,dataFilterValue){let groupKey="meta-"+groupName;let groupLabel=document.createElement("label");groupLabel.className="pb__filter_title";let filterGroup=document.querySelector(".pb__filter_group")
+let sortGroup=document.querySelector(".pb__sortable_group");let groupDiv=document.createElement("div");let thisGroup=filterGroup.appendChild(groupDiv);filterGroup.appendChild(groupLabel);if(dataFilterValue===false){groupDiv.setAttribute('data-key',groupKey);createFilterHTML("checkbox",`Missing ${groupName}`,false);createFilterHTML("checkbox",`Has ${groupName}`,true);}else if(dataFilterValue==="key"){groupDiv.setAttribute('data-key',groupKey);groupLabel.innerText=groupKey;groupValues.forEach(val=>{createFilterHTML("checkbox",`${val}`,val);});}else{groupDiv.setAttribute('data-sort-group',groupKey);createFilterHTML("text",`${groupName}`,groupKey);}
+function createFilterHTML(type,label,value){let valDiv,sortDiv;if(type==="radio"){valDiv=`
+          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">
+          <label for="radioButton-${groupName}">${label}</label>`;groupDiv.innerHTML+=valDiv;}else if(type==="checkbox"){valDiv=`
+          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>
+          <label for="checkbox-${groupName}">${label}</label>`;groupDiv.innerHTML+=valDiv;}else if(type==="select"){if(!thisGroup.querySelector("select")){let selectDiv=document.createElement("select");thisGroup.appendChild(selectDiv);}
+thisGroup=thisGroup.querySelector("select");valDiv=`
+              <option value="${value}">${label}</option>`;groupDiv.innerHTML+=valDiv;}else if(type==="text"){let sortName=value.replace(`meta-${getMode()}-`,"");valDiv=`
+          <div data-sort-value="${value}">${sortName}</div>`;sortGroup.innerHTML+=valDiv;}}}}
+function toggleMode(e){let toggleBtns=document.querySelector('[data-toggle]');let toggleValues=toggleBtns.querySelectorAll('input');let theItems=document.querySelectorAll('.the_item');toggleValues.forEach((input,index)=>{let val=input.value;let mode=val;if(input.checked){console.log("mode",mode)
+changeContent(theItems,mode);changeFilters(theItems,mode);}});}
+sortValue();toggleMode();}

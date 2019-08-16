@@ -38,12 +38,11 @@
       links.forEach(l => {
         let lPath = window.location.origin.replace(window.location.protocol, "");
         let thisPage = lPath + window.location.pathname;
-        
         if (l.innerHTML !== thisPage) {
-          //console.log(l, thisPage)
+          //console.log(l)
           newLinks.push(l);
         }
-      })
+      });
       createSections(newLinks);
 
     } else {
@@ -78,7 +77,7 @@
 
   // Create groups of links
   function createSections (links) {
-
+    console.log("starting links", links)
     let cProgressBar = document.getElementsByClassName('js-c-progress-bar')[0];
     dashboardContent.classList.add("is-loading");
     
@@ -113,6 +112,8 @@
         // Get the head where the meta lives
         let head = doc.querySelector('head');
 
+        let relativeLinks = doc.querySelectorAll('a');
+
         // Create the html
         let thisGroup = getGroup(link)[0];
 
@@ -125,7 +126,9 @@
             title: getMetaValue("title", head),
             description: getMetaValue('[name="description"]', head),
             robots: getMetaValue('[name="robots"]', head),
-            url: fullUrl
+            url: fullUrl,
+            group: thisGroup,
+            relativeLinks: relativeLinks
           },
           google: {
             //title: "fb title",
@@ -133,20 +136,23 @@
             description: getMetaValue('[name="description"]', head),
             url: fullUrl,
             robots: getMetaValue('[name="robots"]', head),
+            group: thisGroup
           },
           facebook: {
             //title: "fb title",
             title: getMetaValue("[property='og:title']", head),
             description: getMetaValue("[property='og:description']", head),
             image: getMetaValue("[property='og:image']", head),
-            url: cleanUrl
+            url: cleanUrl,
+            group: thisGroup
           },
           twitter: {
             //title: "fb title",
             title: getMetaValue("[property='twitter:title']", head),
             description: getMetaValue("[property='twitter:description']", head),
             image: getMetaValue("[property='twitter:image']", head),
-            url: cleanUrl
+            url: cleanUrl,
+            group: thisGroup
           }
         }
 
@@ -164,6 +170,7 @@
         <div class="meta_url"></div>
         <div class="meta_title"></div>
         <div class="meta_description"></div>
+        <div class="meta_relative_links"></div>
         </div>`;
 
           if (index === links.length -1) {
