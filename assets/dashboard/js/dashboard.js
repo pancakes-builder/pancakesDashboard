@@ -1,6 +1,5 @@
 // getGroup(link); // return the associated top level group for a link
 // getGroups(links); // return an array of all available groups;
-(function () {
 
   const dashboardContent = document.querySelector(".pb__dashboardContent");
   const sortableContent = document.querySelector("#sortableContent");
@@ -58,6 +57,34 @@
     }
   }
 
+  function getCount(key, value) {
+    
+    let all;
+
+    if (value !== undefined && key !== undefined) {
+      let query = "[" + key +"='" + value + "']";
+      all = document.querySelectorAll(query);
+      //console.log("ALL", all, query)
+    } else if (key !== undefined) {
+      all = document.querySelectorAll(`[${key}]`)
+    } else {
+      all = document.querySelectorAll(".the_item");
+    }
+
+    let visible = [];
+    
+
+    all.forEach(item => {
+      let display = getComputedStyle(item).display;
+      
+      if (display !== "none") {
+        visible.push(item);
+      }
+    });
+    //console.log("visible", key, value, visible.length)
+    return visible.length;
+  }
+
   let getMetaValue = (selector, head) => {
     
     let metaItem = head.querySelector(selector);
@@ -77,7 +104,7 @@
 
   // Create groups of links
   function createSections (links) {
-    console.log("starting links", links)
+    //console.log("starting links", links)
     let cProgressBar = document.getElementsByClassName('js-c-progress-bar')[0];
     Util.pbLoadingAnimation(true);
     
@@ -85,7 +112,7 @@
     let listSidebar = document.querySelector('.groups');
     if (groups) {
       listSidebar.innerHTML += `
-      <input type="checkbox" id="checkbox0" data-filter-value="*" checked>`;
+      <input type="checkbox" id="checkbox0" pb-function="checkbox-select-all" checked>`;
     }      
     groups.forEach((group, index) => {
       index++;
@@ -269,4 +296,3 @@
     //console.log("parseXML test", parseXML());
     parseXML();
   });
-})();

@@ -8,7 +8,8 @@ return searchResult&&q;}});iso.on('arrangeComplete',function(){setCount();});let
 let sortBtns=document.querySelectorAll('[data-sort-value]');let sortValue,filterValue;sortBtns.forEach(sortBtn=>{if(sortBtn.classList.contains("active")){sortValue=sortBtn.getAttribute('data-sort-value');}});let sortKey;if(sortValue){sortKey=sortValue.replace(`meta-${getMode()}-`,"");}
 let filterGroups=document.querySelectorAll('[data-key]');filterGroups.forEach((group,index)=>{let filterBtns=group.querySelectorAll('[data-filter-value]');let filterTarget=group.getAttribute('data-key');let checkedValues=[];filterBtns.forEach(filterBtn=>{if(filterBtn.checked===true){let attr=filterBtn.getAttribute('data-filter-value');checkedValues.push(attr);}
 buttonFilters[filterTarget]=checkedValues;});});iso.arrange({sortBy:sortKey});iso.arrange();}
-document.addEventListener("click",function(e){if(e.target.closest('[data-sort-value]')){e.target.closest('[data-sort-value]').classList.toggle("active");}
+document.addEventListener("click",function(e){let sortBtns=document.querySelectorAll('[data-sort-value]');if(e.target.closest('[data-sort-value]')){sortBtns.forEach(sortBtn=>{sortBtn.classList.remove("active");})
+e.target.closest('[data-sort-value]').classList.toggle("active");}
 if(e.target.closest('[data-filter-value="*"]')){let setChecked=e.target.closest('[data-filter-value="*"]').parentNode.querySelectorAll('input[type="checkbox"]');if(e.target.closest('[data-filter-value="*"]').checked===true){toggleChecked(true);}else{toggleChecked(false);}
 function toggleChecked(state){setChecked.forEach(check=>{if(state===true){check.setAttribute('checked',"");}else{check.removeAttribute('checked')}});}}
 if(e.target.closest('[data-toggle] input')){toggleMode();}
@@ -31,22 +32,21 @@ items.forEach((item,i)=>{let attrs=getAttributes(item);attrs.forEach((attr,index
 function listUniqueValues(arr){var counts={};for(var i=0;i<arr.length;i++){counts[arr[i]]=1+(counts[arr[i]]||0);}
 return counts;}
 function changeBar(obj){dynamicBar.innerHTML=`
-    <div class='pb__sortable_group'><label>Sort by: </label></div>
+    <div class='pb__sortable_group btns'></div>
     <div class='pb__filter_group'><label>Filter by: </label></div>`;for(var key in obj){let dataFilterValue;let values=obj[key];if(values.length>0){console.log("changeBar",obj)
 console.log("unique values",listUniqueValues(obj[key]))
 if(values.indexOf("false")!=-1){dataFilterValue=false;createFilter(key,values,dataFilterValue);}
 else if(values.length<=4){dataFilterValue="key";createFilter(key,values,dataFilterValue);}
 else{dataFilterValue=key;createFilter(key,values,dataFilterValue);}}}
-function createFilter(groupName,groupValues,dataFilterValue){let groupKey="meta-"+groupName;let groupLabel=document.createElement("label");groupLabel.className="pb__filter_title";let filterGroup=document.querySelector(".pb__filter_group")
-let sortGroup=document.querySelector(".pb__sortable_group");let groupDiv=document.createElement("div");let thisGroup=filterGroup.appendChild(groupDiv);filterGroup.appendChild(groupLabel);if(dataFilterValue===false){groupDiv.setAttribute('data-key',groupKey);createFilterHTML("checkbox",`Missing ${groupName}`,false);createFilterHTML("checkbox",`Has ${groupName}`,true);}else if(dataFilterValue==="key"){groupDiv.setAttribute('data-key',groupKey);groupLabel.innerText=groupKey;groupValues.forEach(val=>{createFilterHTML("checkbox",`${val}`,val);});}else{groupDiv.setAttribute('data-sort-group',groupKey);createFilterHTML("text",`${groupName}`,groupKey);}
+function createFilter(groupName,groupValues,dataFilterValue){let groupKey="meta-"+groupName;let filterGroup=document.querySelector(".pb__filter_group")
+let sortGroup=document.querySelector(".pb__sortable_group");let filterLabel=document.createElement("label");filterLabel.className="pb__filter_title";let filterDiv=document.createElement("div");let fGroup=filterGroup.appendChild(filterDiv);filterGroup.appendChild(filterLabel);let sortLabel=document.createElement("label");let sortDiv=document.createElement("div");let sGroup=filterGroup.appendChild(sortDiv);sortGroup.appendChild(sortLabel);if(dataFilterValue===false){fGroup.setAttribute('data-key',groupKey);createFilterHTML("checkbox",`Missing ${groupName}`,false);createFilterHTML("checkbox",`Has ${groupName}`,true);}else if(dataFilterValue==="key"){fGroup.setAttribute('data-key',groupKey);filterLabel.innerText=groupKey;groupValues.forEach(val=>{createFilterHTML("checkbox",`${val}`,val);});}else{sGroup.setAttribute('data-sort-group',groupKey);createFilterHTML("text",`${groupName}`,groupKey);}
 function createFilterHTML(type,label,value){let valDiv,sortDiv;if(type==="radio"){valDiv=`
-          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">
-          <label for="radioButton-${groupName}">${label}</label>`;groupDiv.innerHTML+=valDiv;}else if(type==="checkbox"){valDiv=`
-          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>
-          <label for="checkbox-${groupName}">${label}</label>`;groupDiv.innerHTML+=valDiv;}else if(type==="select"){if(!thisGroup.querySelector("select")){let selectDiv=document.createElement("select");thisGroup.appendChild(selectDiv);}
+          <label for="radioButton-${groupName}">${label}</label>
+          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">`;filterDiv.innerHTML+=valDiv;}else if(type==="checkbox"){valDiv=`
+          <label for="checkbox-${groupName}">${label}</label>
+          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>`;filterDiv.innerHTML+=valDiv;}else if(type==="select"){if(!thisGroup.querySelector("select")){let selectDiv=document.createElement("select");thisGroup.appendChild(selectDiv);}
 thisGroup=thisGroup.querySelector("select");valDiv=`
-              <option value="${value}">${label}</option>`;groupDiv.innerHTML+=valDiv;}else if(type==="text"){let sortName=value.replace(`meta-${getMode()}-`,"");valDiv=`
-          <div data-sort-value="${value}">${sortName}</div>`;sortGroup.innerHTML+=valDiv;}}}}
-function toggleMode(e){let toggleBtns=document.querySelector('[data-toggle]');let toggleValues=toggleBtns.querySelectorAll('input');let theItems=document.querySelectorAll('.the_item');toggleValues.forEach((input,index)=>{let val=input.value;let mode=val;if(input.checked){console.log("mode",mode)
-changeContent(theItems,mode);changeFilters(theItems,mode);}});}
+              <option value="${value}">${label}</option>`;sortDiv.innerHTML+=valDiv;}else if(type==="text"){let sortName=value.replace(`meta-${getMode()}-`,"");valDiv=`
+          <div class="btn" data-sort-value="${value}">${sortName}</div>`;sortGroup.innerHTML+=valDiv;}}}}
+function toggleMode(e){let toggleBtns=document.querySelector('[data-toggle]');let toggleValues=toggleBtns.querySelectorAll('input');let theItems=document.querySelectorAll('.the_item');toggleValues.forEach((input,index)=>{let val=input.value;let mode=val;if(input.checked){changeContent(theItems,mode);changeFilters(theItems,mode);}});}
 sortValue();toggleMode();}

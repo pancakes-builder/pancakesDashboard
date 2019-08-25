@@ -1,3 +1,5 @@
+const titleText = document.querySelector('head title').innerText;
+
 function startSort() {
 console.log("startsort...")
   
@@ -22,7 +24,9 @@ console.log("startsort...")
   console.log("getmode", getMode())
   //let mode = getMode();
   var elem = document.querySelector('#sortableContent');
-  const dynamicBar = document.querySelector(".pb__dynamic_filter ");
+  const dynamicBar = document.querySelector(".pb__filter_bar");
+  const dynamicSortBar = document.querySelector(".pb__sort_bar");
+  
   var qsRegex;
   var searchBtn = document.querySelector('#searchInputX');
   let filters = {};
@@ -161,9 +165,9 @@ console.log("startsort...")
       e.target.closest('[data-sort-value]').classList.toggle("active");
 
     }
-    if (e.target.closest('[data-filter-value="*"]')) {
-      let setChecked = e.target.closest('[data-filter-value="*"]').parentNode.querySelectorAll('input[type="checkbox"]');
-      if (e.target.closest('[data-filter-value="*"]').checked === true) {
+    if (e.target.closest('[pb-function="checkbox-select-all"]')) {
+      let setChecked = e.target.closest('[pb-function="checkbox-select-all"]').parentNode.querySelectorAll('input[type="checkbox"]');
+      if (e.target.closest('[pb-function="checkbox-select-all"]').checked === true) {
         toggleChecked(true);
       } else {
         toggleChecked(false);
@@ -192,49 +196,64 @@ console.log("startsort...")
 
   
 
-  
 
   // Return the count of the selected
   function setCount () {
     //console.log("set count")
     
     let countDiv = document.querySelector('.count');
-
     countDiv.innerText = getCount();
-  }
 
-  function getCount() {
+    let filters = document.querySelectorAll("[data-key]");
     
-    let all = document.querySelectorAll(".the_item");
-
-    let visible = [];
-    //console.log("visible", visible)
-
-    all.forEach(item => {
-      let display = getComputedStyle(item).display;
+    
+    filters.forEach(filter => {
+      let filterSelector = filter.getAttribute("data-key");
+      let filterItems = filter.querySelectorAll("[data-filter-value]");
       
-      if (display !== "none") {
-        visible.push(item);
-      }
+      filterItems.forEach(item => {
+        let filterKey = item.getAttribute("data-filter-value");
+        let label = item.parentNode.querySelector("label");
+        //let labelSpan = document.createElement("span");
+        //let span = label.appendChild(labelSpan)
+        let labelSpan, span;
+        let labelCount = getCount(filterSelector, filterKey);
+        //console.log("PPPP", span, filterKey, labelCount)
+
+        if (label.querySelector("span") === null) {
+          labelSpan = document.createElement("span");
+          span = label.appendChild(labelSpan);
+          span.className = "thisCount";
+        }
+
+        span = label.querySelector(".thisCount");
+        
+        
+        //console.log(span, filterKey, labelCount)
+        if (span !== null && span !== undefined) {
+          //console.log("updated cont....", filter)
+
+          if (labelCount !== 0) {
+            span.innerText = " (" + labelCount + ") ";
+          } else {
+            span.innerText = "";
+          }
+
+          // Hide filters with no current value
+          if (filter.parentNode.classList.contains("pb__issues")) {
+            if (labelCount === 0) {
+              filter.style.display = "none";
+            } else {
+              filter.style.display = "";
+            }
+          }
+        }
+      });
     });
-    return visible.length;
-  }
 
-  // flatten object by concatting values
-  // function concatValues( obj ) {
-  //   var value = '';
-
-  //   for ( var prop in obj ) {
-  //     let v = obj[ prop ].toString();
-  //     // v = v.replace("\.", "");
-  //     value += v;
-  //     console.log(obj)
-  //   }
-  //   value = value.toString();
-  //   value = value.split(',').join(" ").split('.').join('');
     
-  //   return value;
-  // }
+    document.querySelector("head title").innerText = titleText + " (" + getCount() + ") ";
+  }
 
 
   function getAttributes(item) {
@@ -393,13 +412,39 @@ console.log("startsort...")
     }
     return counts;
   }
+
+  function isIssue(fieldValue, name) {
+    let issues = [undefined, null, false, "false", "undefined", "null"];
+    let is;
+    issues.forEach(function (issue){
+      if (fieldValue === issue) {
+        console.log("fieldval", fieldValue, issue);
+        if (issue === undefined || issue === "undefined") {
+          is = `Missing ${name} meta tag `;
+        }
+        if (issue === null || issue === "null" || issue === false || issue === "false") {
+          is = `Meta value for ${name} missing`;
+        }
+      }
+    });
+
+    if (is) {
+      return is;
+    } else {
+      return false;
+    }
+    
+  }
   
 
   function changeBar(obj) {
-    dynamicBar.innerHTML = `
-    <div class='pb__sortable_group btns'></div>
-    <div class='pb__filter_group'><label>Filter by: </label></div>`;
+    dynamicSortBar.innerHTML = `
+    <div class='pb__sortable_group btns'></div>`;
 
+    dynamicBar.innerHTML = `
+    <div class='pb__filter_group'></div>`;
+
+    // Filter object contains all selectors and their values for the active mode. 
     for (var key in obj) {
       let dataFilterValue;
 
@@ -412,99 +457,174 @@ console.log("startsort...")
         // A value is missing, so create a filter that lets us display items with a missing value
         if (values.indexOf("false") != -1) {
           dataFilterValue = false;
-          createFilter(key, values, dataFilterValue);
+
+          // deprecated
+          //createFilter(key, values, dataFilterValue);
+
+          // formFilter: key, "issue"/"filter"/"sort",
+          formFilter(key, values, "issue");
         } 
         
-        else if (values.length <= 4) {
-          dataFilterValue = "key";
-          createFilter(key, values, dataFilterValue);
-        } 
-        else {
+        // else if (values.length <= 4) {
+        //   dataFilterValue = "key";
+        //   createFilter(key, values, dataFilterValue);
+        // } 
+        // else {
           
-          dataFilterValue = key;
-          createFilter(key, values, dataFilterValue);
-        }
+        //   dataFilterValue = key;
+        //   createFilter(key, values, dataFilterValue);
+        // }
         
       }
       
     }
 
-    function createFilter (groupName, groupValues, dataFilterValue) {
+    function doesNotExist (parent, selector) {
+      let is;
+      if (parent.querySelector(selector) === null) {
+        console.log("parent", parent, selector);
+        is = true;
+      }
 
-      let groupKey = "meta-" + groupName;
-      
-      //<div class="select"><select class="form-control width-100%" name="selectThis" id="selectThis"></select>
-      //<svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
-      //</div>
-      
-      
-      let filterGroup = document.querySelector(".pb__filter_group")
-      let sortGroup = document.querySelector(".pb__sortable_group");
-      //let thisGroup = dynamicBar.appendChild(groupDiv);
-
-      let filterLabel = document.createElement("label");
-      filterLabel.className = "pb__filter_title";
-      let filterDiv = document.createElement("div");
-      let fGroup = filterGroup.appendChild(filterDiv);
-      filterGroup.appendChild(filterLabel);
-
-      let sortLabel = document.createElement("label");
-      let sortDiv = document.createElement("div");
-      let sGroup = filterGroup.appendChild(sortDiv);
-      sortGroup.appendChild(sortLabel);
-
-
-      if (dataFilterValue === false) {
-        fGroup.setAttribute('data-key', groupKey);
-        createFilterHTML("checkbox", `Missing ${groupName}`, false);
-        createFilterHTML("checkbox", `Has ${groupName}`, true);
-      } else if (dataFilterValue === "key") {
-        fGroup.setAttribute('data-key', groupKey);
-        filterLabel.innerText = groupKey;
-
-        groupValues.forEach(val => {
-          createFilterHTML("checkbox", `${val}`, val);
-        });
+      if (is === true) {
+        return true;
       } else {
-        sGroup.setAttribute('data-sort-group', groupKey);
-        createFilterHTML("text", `${groupName}`, groupKey);
-      }
-      function createFilterHTML (type, label, value) {
-        let valDiv, sortDiv;
-
-        if (type === "radio") {
-          valDiv = `
-          <label for="radioButton-${groupName}">${label}</label>
-          <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">`;
-          filterDiv.innerHTML += valDiv;
-        } else if (type === "checkbox") {
-          valDiv = `
-          <label for="checkbox-${groupName}">${label}</label>
-          <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}" checked>`;
-          
-          filterDiv.innerHTML += valDiv;
-        } else if (type === "select") {
-          if (!thisGroup.querySelector("select")) {
-            let selectDiv = document.createElement("select");
-            thisGroup.appendChild(selectDiv);
-          }
-          thisGroup = thisGroup.querySelector("select");
-            valDiv = `
-              <option value="${value}">${label}</option>`;
-              sortDiv.innerHTML += valDiv;
-        } else if (type === "text") {
-          //thisGroup = document.querySelector(".pb__sortable_filters");
-          let sortName = value.replace(`meta-${getMode()}-`, "");
-          valDiv = `
-          <div class="btn" data-sort-value="${value}">${sortName}</div>`;
-          sortGroup.innerHTML += valDiv;
-        }
-        
+        return false;
       }
     }
 
-    
+    function formFilter (groupName, values, typeClass) {
+      // meta-list-description
+      // Groupname = object key
+      let interactMode = "filter";
+      let lookupKey = "meta-" + groupName;
+      
 
+      // Areas to put stuff
+      let issuesDiv = document.querySelector(".pb__issues");
+      let filterDiv = document.querySelector(".pb__filter_group")
+      let sortDiv = document.querySelector(".pb__sortable_group");
+
+      if (typeClass === "issue") {
+        bar = issuesDiv;
+      } else if (typeClass === "filter") {
+        bar = filterDiv;
+      } else if (typeClass === "sort") {
+        bar = sortDiv;
+        interactMode = "sort";
+      } 
+
+      // Types of elements to create
+      let label = document.createElement("label");
+      let div = document.createElement("div");
+
+      let groupHTML = bar.appendChild(div);
+      groupHTML.appendChild(label);
+      groupHTML.setAttribute('data-key', lookupKey);
+      let groupSelector = document.querySelector(`[data-key="${lookupKey}"]`);
+      console.log("groupHTML", groupHTML)
+
+      // the Innerhtml for the group
+      values.forEach(value => {
+        
+        if (isIssue(value, lookupKey)) {
+          
+          let dataValueSelector = `[data-${interactMode}-value="${value}"]`;
+          let innerDiv;
+          let friendlyLabel = isIssue(value, lookupKey);
+
+          if (doesNotExist(groupSelector, dataValueSelector)) {
+            
+            if (interactMode !== "sort") {
+              console.log("EXISTS", isIssue(value), value, groupHTML)
+              innerDiv = `<div>
+              <input type="checkbox" name="checkbox-${groupName}" data-${interactMode}-value="${value}">
+              <label for="checkbox-${groupName}">${friendlyLabel} </label>
+              </div>`;
+              groupHTML.innerHTML += innerDiv;
+            } else {
+              let sortName = value.replace(`meta-${getMode()}-`, "");
+              groupHTML += `<div class="btn" data-${interactMode}-value="${value}">${sortName}</div>`;
+            }
+            
+          }
+        }
+        
+      })
+      
+
+
+    }
+
+    // function createFilter (groupName, groupValues, dataFilterValue) {
+    //   // For both, set the wrapping div to the key and the inner div to the wrapper
+      
+    //   //<div class="select"><select class="form-control width-100%" name="selectThis" id="selectThis"></select>
+    //   //<svg class="icon" aria-hidden="true" viewBox="0 0 16 16"><g stroke-width="1" stroke="currentColor"><polyline fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,4.5 8,12 0.5,4.5 "></polyline></g></svg>
+    //   //</div>
+      
+      
+    //   //let thisGroup = dynamicBar.appendChild(groupDiv);
+
+    //   if (dataFilterValue === false) {
+    //     console.log("issieu", fGroup, groupKey,groupName)
+    //     fGroup.setAttribute('data-key', groupKey);
+    //     createFilterHTML("issues", `Missing ${groupName}`, false);
+    //   } else if (dataFilterValue === "key") {
+    //     fGroup.setAttribute('data-key', groupKey);
+    //     filterLabel.innerText = groupKey;
+
+    //     groupValues.forEach(val => {
+    //       createFilterHTML("checkbox", `${val}`, val);
+    //     });
+    //   } else {
+    //     sGroup.setAttribute('data-sort-group', groupKey);
+    //     createFilterHTML("text", `${groupName}`, groupKey);
+    //   }
+    //   function createFilterHTML (type, label, value) {
+    //     let valDiv, sortDiv;
+
+    //     if (type === "radio") {
+    //       valDiv = `
+    //       <div>
+    //       <input type="radio" name="radioButton-${groupName}" data-filter-value="${value}">
+    //       <label for="radioButton-${groupName}">${label}</label>
+    //       </div>`;
+    //       filterDiv.innerHTML += valDiv;
+    //     } else if (type === "issues") {
+    //       valDiv = `
+    //       <div>
+    //       <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
+    //       <label for="checkbox-${groupName}">${label} </label>
+    //       </div>`;
+          
+    //       issuesList.innerHTML += valDiv;
+    //     } else if (type === "checkbox") {
+    //       valDiv = `
+    //       <div>
+    //       <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
+    //       <label for="checkbox-${groupName}">${label}</label>
+    //       </div>`;
+          
+    //       filterDiv.innerHTML += valDiv;
+    //     } else if (type === "select") {
+    //       if (!thisGroup.querySelector("select")) {
+    //         let selectDiv = document.createElement("select");
+    //         thisGroup.appendChild(selectDiv);
+    //       }
+    //       thisGroup = thisGroup.querySelector("select");
+    //         valDiv = `
+    //           <option value="${value}">${label}</option>`;
+    //           sortDiv.innerHTML += valDiv;
+    //     } else if (type === "text") {
+    //       //thisGroup = document.querySelector(".pb__sortable_filters");
+    //       let sortName = value.replace(`meta-${getMode()}-`, "");
+    //       valDiv = `
+    //       <div class="btn" data-sort-value="${value}">${sortName}</div>`;
+    //       sortGroup.innerHTML += valDiv;
+    //     }
+    //   }
+    // }
   }
 
 

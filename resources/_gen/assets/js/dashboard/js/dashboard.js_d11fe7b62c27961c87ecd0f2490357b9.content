@@ -1,10 +1,10 @@
 (function(){const dashboardContent=document.querySelector(".pb__dashboardContent");const sortableContent=document.querySelector("#sortableContent");let parseXML=async()=>{let sitemap=document.querySelector('#sitemap').value;sitemap=window.location.origin+sitemap;const response=await fetch(sitemap)
 const text=await response.text();let parser=new DOMParser();let content=parser.parseFromString(text,"text/xml");let pages=content.querySelectorAll("loc");evaluateXML(pages);}
-document.querySelector('#sitemap').addEventListener("keyup",()=>{if(event.key==="Enter"){parseXML();}},false);function evaluateXML(links){if(links.length>0){let newLinks=[];links.forEach(l=>{let lPath=window.location.origin.replace(window.location.protocol,"");let thisPage=lPath+window.location.pathname;if(l.innerHTML!==thisPage){newLinks.push(l);}})
-createSections(newLinks);}else{return false;}}
+document.querySelector('#sitemap').addEventListener("keyup",()=>{if(event.key==="Enter"){parseXML();}},false);function evaluateXML(links){if(links.length>0){let newLinks=[];links.forEach(l=>{let lPath=window.location.origin.replace(window.location.protocol,"");let thisPage=lPath+window.location.pathname;if(l.innerHTML!==thisPage){newLinks.push(l);}});createSections(newLinks);}else{return false;}}
 let getCharacterCount=(str)=>{if(str!==undefined&&str!==undefined&&str!==false&&str!==""){return str.length;}else{return false;}}
 let getMetaValue=(selector,head)=>{let metaItem=head.querySelector(selector);if(metaItem){if(metaItem.innerText!==undefined&&metaItem.innerText!==null&&metaItem.innerText!==""){return metaItem.innerText;}else if((metaItem.content!==undefined&&metaItem.content!==null)){return metaItem.content;}else{return false;}}else{return false;}}
-function createSections(links){let cProgressBar=document.getElementsByClassName('js-c-progress-bar')[0];dashboardContent.classList.add("is-loading");let groups=getGroups(links);let listSidebar=document.querySelector('.groups');if(groups){listSidebar.innerHTML+=`
+function createSections(links){console.log("starting links",links)
+let cProgressBar=document.getElementsByClassName('js-c-progress-bar')[0];Util.pbLoadingAnimation(true);let groups=getGroups(links);let listSidebar=document.querySelector('.groups');if(groups){listSidebar.innerHTML+=`
       <input type="checkbox" id="checkbox0" data-filter-value="*" checked>`;}
 groups.forEach((group,index)=>{index++;listSidebar.innerHTML+=`
       <li><input type="checkbox" id="checkbox${index}" data-filter-value="${group}" checked>
@@ -16,7 +16,7 @@ let item=document.createElement("a");item.className="the_item";item.href=link;it
         <div class="meta_title"></div>
         <div class="meta_description"></div>
         <div class="meta_relative_links"></div>
-        </div>`;if(index===links.length-1){startSort();dashboardContent.classList.remove("is-loading");}
+        </div>`;if(index===links.length-1){startSort();Util.pbLoadingAnimation(false);}
 function pullMeta(obj){var key;var value;for(var prop in obj){key=prop;value=obj[prop];for(var pr in value){k=pr;v=value[pr];if(!v){v=false;}
 thisItem.setAttribute(`meta-${key}-${k}`,v);}}}
 pullMeta(metaData);}
