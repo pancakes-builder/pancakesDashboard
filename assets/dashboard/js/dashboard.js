@@ -102,6 +102,80 @@
     
   }
 
+  function checkBrokenLinks (links) {
+    
+    let checkLinks = () => {
+      Util.pbLoadingAnimation(true);
+      links.forEach((item, index) => {
+        let fillDiv = item.querySelector(".meta_relative_links");
+        let link = item.href;
+
+          let getMeta = async(src) => {
+            const response = await fetch(src);
+            const html = await response.text();
+            let parser = new DOMParser();
+            // Parse the text
+            let doc = parser.parseFromString(html, "text/html");
+
+            // Parse the text
+            let urlSelectors = doc.querySelectorAll('a');
+                
+            let relUrls = [];
+            urlSelectors.forEach(a => {
+              if (a.href.includes(window.origin)) {
+                //console.log("href", a)
+                relUrls.push(a);
+              }
+            });
+
+            let notFound = [];
+            relUrls.forEach((l, index) => {
+              
+              let getStatus = async(url, src) => {
+                  fetch(src)
+                  .then( res => {
+                    if (res.ok) {
+                      
+                    } else {
+                      //console.log("NOTFOUND", url, src)
+                      //fillDiv.innerText += url;
+                      notFound.push(url);
+                      console.log("hasBrokenLinks", item)
+                      item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
+                      fillDiv.innerText = notFound.length;
+                    }
+                    if (index === relUrls.length -1) {
+                      console.log("urlSelectors", notFound.length);
+                      Util.pbLoadingAnimation(false);
+                    }
+                  });
+                  
+              }
+              
+              
+              getStatus(l, l.href);
+              
+            });
+          }
+          
+
+
+        getMeta(link);
+
+      })
+    }
+    let brokenLinkTrigger = document.querySelector(".checkBrokenLinks");
+    brokenLinkTrigger.addEventListener("click", checkLinks, false)
+  }
+
+  function checkLength (string, limit) {
+    if (string.length > limit) {
+      return "tooBig";
+    } else {
+      return "fine"
+    }
+  }
+
   // Create groups of links
   function createSections (links) {
     //console.log("starting links", links)
@@ -139,8 +213,6 @@
         // Get the head where the meta lives
         let head = doc.querySelector('head');
 
-        let relativeLinks = doc.querySelectorAll('a');
-
         // Create the html
         let thisGroup = getGroup(link)[0];
 
@@ -155,28 +227,45 @@
             robots: getMetaValue('[name="robots"]', head),
             url: fullUrl,
             group: thisGroup,
-            relativeLinks: relativeLinks
           },
           google: {
             //title: "fb title",
-            title: getMetaValue("title", head),
-            description: getMetaValue('[name="description"]', head),
+            title: {
+              limit: checkLength(getMetaValue("title", head), 65),
+              content: getMetaValue("title", head),
+            },
+            description: {
+              limit: checkLength(getMetaValue('[name="description"]', head), 300),
+              content: getMetaValue('[name="description"]', head),
+            },
             url: fullUrl,
             robots: getMetaValue('[name="robots"]', head),
             group: thisGroup
           },
           facebook: {
             //title: "fb title",
-            title: getMetaValue("[property='og:title']", head),
-            description: getMetaValue("[property='og:description']", head),
+            title: {
+              limit: checkLength(getMetaValue("[property='og:title']", head), 40),
+              content: getMetaValue("[property='og:title']", head),
+            },
+            description: {
+              limit: checkLength(getMetaValue("[property='og:description']", head), 110),
+              content: getMetaValue("[property='og:description']", head),
+            },
             image: getMetaValue("[property='og:image']", head),
             url: cleanUrl,
             group: thisGroup
           },
           twitter: {
             //title: "fb title",
-            title: getMetaValue("[property='twitter:title']", head),
-            description: getMetaValue("[property='twitter:description']", head),
+            title: {
+              limit: checkLength(getMetaValue("[property='twitter:title']", head), 40),
+              content: getMetaValue("[property='twitter:title']", head),
+            },
+            description: {
+              limit: checkLength(getMetaValue("[property='twitter:description']", head), 200),
+              content: getMetaValue("[property='twitter:description']", head),
+            },
             image: getMetaValue("[property='twitter:image']", head),
             url: cleanUrl,
             group: thisGroup
@@ -203,6 +292,7 @@
           if (index === links.length -1) {
             startSort();
             Util.pbLoadingAnimation(false);
+            checkBrokenLinks(document.querySelectorAll(".the_item"));
           }
 
           function pullMeta (obj) {
@@ -212,7 +302,7 @@
             for ( var prop in obj ) {
               key = prop;
               value = obj[ prop ];
-              //console.log("key", key, "value", value);
+              console.log("key", key, "value", value);
     
               for ( var pr in value) {
                 k = pr;
@@ -220,6 +310,21 @@
                 if (!v) {
                   v = false;
                 }
+                
+                if (typeof(v) === "object") {
+                  //console.log("IS OBJECT", v, )
+                  let subObj = v;
+                  for ( var l in subObj) {
+                    k = pr + "-" + l;
+                    v = subObj[ l ];
+                    thisItem.setAttribute(`meta-${key}-${k}`, v);
+                    //console.log("IS VALUE", key, k, v ) 
+                  }
+                } else {
+                  
+                  
+                }
+                //console.log("aa", key, k, v )
                 thisItem.setAttribute(`meta-${key}-${k}`, v);
               }
               
