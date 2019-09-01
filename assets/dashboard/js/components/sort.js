@@ -443,7 +443,7 @@ console.log("startsort...")
 
   function listUniqueValues (arr, type) {
     
-    var values = [];
+    var values = {};
     for (var i = 0; i < arr.length; i++) {
         values[arr[i]] = 1 + (values[arr[i]] || 0);
     }
@@ -507,14 +507,17 @@ console.log("startsort...")
   }
 
   function isFilter(fieldValues, name) {
-    let is;
+    let is = [];
+    
 
-    fieldValues.forEach(possibleValue => {
+    for (var key in fieldValues) {
       if (name.includes("robots")) {
-        is = true;
+        is.push(key);
       }
-    });
-    if (is) {
+    }
+
+    console.log("fff", fieldValues, is, name)
+    if (is.length > 0) {
       return is;
     } else {
       return false;
@@ -658,9 +661,11 @@ console.log("startsort...")
           console.log("sss", key, values)
           formFilter(key, isSortable(values, key), "sort")
         }
-        //console.log("UNIQUE VALUES", listUniqueValues(obj[key]))
+        
         if (isFilter(listUniqueValues(obj[key]), key)) {
-          //formFilter(key, values, "filter")
+          console.log("UNIQUE VALUES", listUniqueValues(obj[key]))
+          values = isFilter(listUniqueValues(obj[key]), key)
+          formFilter(key, values, "filter")
         }
         //console.log("changeBar", obj)
         
@@ -721,6 +726,7 @@ console.log("startsort...")
         groupHTML = bar.appendChild(div);
         groupHTML.appendChild(label);
         groupHTML.setAttribute('data-key', groupKey);
+        label.innerText = groupName;
       }
       let groupSelector = bar.querySelector(`[data-key="${groupKey}"]`);
 
