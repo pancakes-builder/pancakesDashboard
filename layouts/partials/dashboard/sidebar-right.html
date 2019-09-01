@@ -1,0 +1,23 @@
+{{ $icons := resources.Get "dashboard/images/icons/icons.svg" }}
+<aside class="pb__sidebar ds-sub-nav pb__sidebar_right">
+
+    <div class="pb__sidebar_vertical_buttons">
+        <button aria-controls="right-drawer" class="counter-container active">
+            <svg class="icon-bell"><use xlink:href="{{ $icons.Permalink }}#icon-bell-1"></use></svg>
+            <span class="counter counter--critical counter--docked issues-count">0 <i class="sr-only">Notifications</i></span>
+        </button>
+    </div>
+
+    <div class="pb__sidebar_content">
+    <h3>Issues</h3>
+        
+        <ul class="pb__issues">
+                {{/*  <li data-key="meta-list-broken-links">
+                        <input type="checkbox" id="checkbox4444" data-filter-value="hasBrokenLinks">
+                        <label for="checkbox4444">broken links</label>
+                    </li>  */}}
+
+        </ul>
+    </div>
+
+</aside>

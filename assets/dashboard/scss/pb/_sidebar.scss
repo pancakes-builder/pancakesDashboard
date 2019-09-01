@@ -1,5 +1,11 @@
 .pb__ {
     &sidebar {
+        h3 {
+            border-bottom: 1px solid $border_color;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        //padding: 10px;
         ul {
             display: flex;
             flex-direction: column;
@@ -8,4 +14,24 @@
             text-transform: capitalize;
         }
     }
+    &sidebar_left {
+        padding: 15px;
+    }
+    &sidebar_right {
+        display: grid;
+        grid-template-rows: 1fr;
+        grid-template-columns: 70px 1fr;
+        border-left: 1px solid $border_color;
+        
+    } 
+    &sidebar_vertical_buttons {
+        padding-top: 15px;
+        justify-content: center;
+        align-items: flex-start;
+        display: flex;
+    }
+    &sidebar_content {
+        padding: 15px;
+        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.2);
+    }   
 }

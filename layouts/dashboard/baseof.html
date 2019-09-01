@@ -6,8 +6,10 @@
     </head>
     <body class="pancakesDashboard">
     <main class="dashboardContent" role="main">
-        {{ partial "dashboard/sidebar.html" . }}
+        {{ partial "dashboard/sidebar-left.html" . }}
         {{ block "main" . }}{{ end }}
+        {{ partial "dashboard/sidebar-right.html" . }}
+        {{ partial "dashboard/drawer.html" . }}
     </main>
     {{ partial "dashboard/scripts.html" . }}
     </body>

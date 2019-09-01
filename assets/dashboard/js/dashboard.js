@@ -37,8 +37,8 @@
       links.forEach(l => {
         let lPath = window.location.origin.replace(window.location.protocol, "");
         let thisPage = lPath + window.location.pathname;
-        if (l.innerHTML !== thisPage) {
-          //console.log(l)
+        if (l.innerHTML !== thisPage && !l.innerHTML.includes("uploads")) {
+          console.log(l.innerHTML)
           newLinks.push(l);
         }
       });
@@ -65,6 +65,16 @@
       let query = "[" + key +"='" + value + "']";
       all = document.querySelectorAll(query);
       //console.log("ALL", all, query)
+    } else if (key === "issues") {
+      all = [];
+      
+      document.querySelectorAll(".pb__sidebar_right [data-filter-value]").forEach(issue => {
+        if (getComputedStyle(issue.parentNode).display !== "none") {
+          all.push(issue);
+          //console.log("countt issue", issue)
+        }
+      });
+
     } else if (key !== undefined) {
       all = document.querySelectorAll(`[${key}]`)
     } else {
@@ -102,70 +112,13 @@
     
   }
 
-  function checkBrokenLinks (links) {
-    
-    let checkLinks = () => {
-      Util.pbLoadingAnimation(true);
-      links.forEach((item, index) => {
-        let fillDiv = item.querySelector(".meta_relative_links");
-        let link = item.href;
+  function showAfterComplete () {
+    let hiddenBtns = document.querySelectorAll("[data-post-processing]");
 
-          let getMeta = async(src) => {
-            const response = await fetch(src);
-            const html = await response.text();
-            let parser = new DOMParser();
-            // Parse the text
-            let doc = parser.parseFromString(html, "text/html");
-
-            // Parse the text
-            let urlSelectors = doc.querySelectorAll('a');
-                
-            let relUrls = [];
-            urlSelectors.forEach(a => {
-              if (a.href.includes(window.origin)) {
-                //console.log("href", a)
-                relUrls.push(a);
-              }
-            });
-
-            let notFound = [];
-            relUrls.forEach((l, index) => {
-              
-              let getStatus = async(url, src) => {
-                  fetch(src)
-                  .then( res => {
-                    if (res.ok) {
-                      
-                    } else {
-                      //console.log("NOTFOUND", url, src)
-                      //fillDiv.innerText += url;
-                      notFound.push(url);
-                      console.log("hasBrokenLinks", item)
-                      item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
-                      fillDiv.innerText = notFound.length;
-                    }
-                    if (index === relUrls.length -1) {
-                      console.log("urlSelectors", notFound.length);
-                      Util.pbLoadingAnimation(false);
-                    }
-                  });
-                  
-              }
-              
-              
-              getStatus(l, l.href);
-              
-            });
-          }
-          
-
-
-        getMeta(link);
-
-      })
-    }
-    let brokenLinkTrigger = document.querySelector(".checkBrokenLinks");
-    brokenLinkTrigger.addEventListener("click", checkLinks, false)
+    hiddenBtns.forEach(hiddenBtn => {
+      hiddenBtn.classList.remove("hidden");
+      //hiddenBtn.classList.add("btn--subtle");
+    });
   }
 
   function checkLength (string, limit) {
@@ -194,6 +147,7 @@
       <li><input type="checkbox" id="checkbox${index}" data-filter-value="${group}" checked>
       <label for="checkbox${index}">${group}</label></li>`;
     });
+    
 
     links.forEach((link, index) => {
       link = link.innerHTML;
@@ -222,8 +176,9 @@
           },
           list: {
             //title: "normal title",
-            title: getMetaValue("title", head),
-            description: getMetaValue('[name="description"]', head),
+            title: {
+              content: getMetaValue("title", head),
+            },
             robots: getMetaValue('[name="robots"]', head),
             url: fullUrl,
             group: thisGroup,
@@ -289,11 +244,7 @@
         <div class="meta_relative_links"></div>
         </div>`;
 
-          if (index === links.length -1) {
-            startSort();
-            Util.pbLoadingAnimation(false);
-            checkBrokenLinks(document.querySelectorAll(".the_item"));
-          }
+          
 
           function pullMeta (obj) {
             var key;
@@ -302,7 +253,7 @@
             for ( var prop in obj ) {
               key = prop;
               value = obj[ prop ];
-              console.log("key", key, "value", value);
+              //console.log("key", key, "value", value);
     
               for ( var pr in value) {
                 k = pr;
@@ -317,6 +268,9 @@
                   for ( var l in subObj) {
                     k = pr + "-" + l;
                     v = subObj[ l ];
+                    if (!v) {
+                      v = false;
+                    }
                     thisItem.setAttribute(`meta-${key}-${k}`, v);
                     //console.log("IS VALUE", key, k, v ) 
                   }
@@ -332,7 +286,17 @@
           }
     
           pullMeta(metaData);
-
+          if (index === links.length -1) {
+            // Refactor this to use promises
+            // Right now the 
+            setTimeout(function() {
+              startSort();
+              Util.pbLoadingAnimation(false);
+              //checkBrokenLinks(document.querySelectorAll(".the_item"));
+              showAfterComplete();
+            }, 0);
+            
+          }
 
       }
 
@@ -401,3 +365,13 @@
     //console.log("parseXML test", parseXML());
     parseXML();
   });
+
+  document.addEventListener("click", function(e) {
+    // if (e.target.closest('[aria-controls="right-drawer"]')) {
+    //   document.body.classList.toggle("open-drawer-right");
+    // }
+    // let btns = document.querySelectorAll('.btn');
+    // if (e.target.closest('.btn, button')) {
+    //   sortBtn.classList.add("active");
+    // }
+  })

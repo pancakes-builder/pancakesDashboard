@@ -21,7 +21,7 @@ console.log("startsort...")
     return newMode;
   }
 
-  console.log("getmode", getMode())
+  //console.log("getmode", getMode())
   //let mode = getMode();
   var elem = document.querySelector('#sortableContent');
   const dynamicBar = document.querySelector(".pb__filter_bar");
@@ -39,18 +39,29 @@ console.log("startsort...")
     itemSelector: '.the_item',
     getSortData: {
       //title: '[meta-list-title]',
-      title: function(elem) {
-        
-        let sortKey = "meta-" + getMode() + "-title";
+      title_content: function(elem) {
+        //console.log("SORTING BY TITLE")
+        let sortKey = "meta-" + getMode() + "-title-content";
         return elem.getAttribute(sortKey);
       },
       group: function (elem) {
+        //console.log("SORTING BY GROUP")
         let sortKey = "meta-" + getMode() + "-group";
         return elem.getAttribute(sortKey);
-      }
+      },
+      broken_links_count: function (elem) {
+        let sortKey = "meta-list-broken-links-count";
+        
+        let convertToNumber = parseInt(elem.getAttribute(sortKey))
+        // if (isNaN(convertToNumber) === true) {
+        //   convertToNumber = 0;
+        // }
+        console.log("SORTING BY LINKS", convertToNumber)
+        return convertToNumber;
+      },
     },
     filter: function (elem) {
-      //console.log("filtering....", buttonFilters);
+      console.log("filtering....");
 
       // The value to search
       qsRegex = new RegExp( searchBtn.value, 'gi' );
@@ -101,12 +112,11 @@ console.log("startsort...")
   // Update the running total after iso finishes arranging the items
   iso.on( 'arrangeComplete', function() {
     setCount();
-    //console.log("arrange complete")
+    console.log("arrange complete")
   });
   
   let sortValue = (e) => {
     buttonFilters = {};
-    console.log("sorting...")
 
     let sortBtns = document.querySelectorAll('[data-sort-value]');
     let sortValue, filterValue;
@@ -121,7 +131,12 @@ console.log("startsort...")
     let sortKey;
 
     if (sortValue) {
+      
       sortKey = sortValue.replace(`meta-${getMode()}-`, "");
+      sortKey = sortKey.replace(/-/g, "_");
+
+
+      console.log("xxxx", sortValue, sortKey)
     }
     
     // Select the key to sort by. Sort by the matching attribute value
@@ -151,6 +166,7 @@ console.log("startsort...")
     //iso.arrange();
     iso.arrange({ sortBy: sortKey });
     iso.arrange();
+    //console.log("sorting...", buttonFilters)
     //iso.updateSortData( document.querySelectorAll(".the_item") )
   }
 
@@ -189,6 +205,15 @@ console.log("startsort...")
     if (e.target.closest('[data-toggle] input')) {
       toggleMode();
     }
+    if (e.target.closest('[data-post-processing]')) {
+      let showFilter = e.target.getAttribute('data-post-processing');
+      showFilter = document.querySelector(`[data-key="${showFilter}"`);
+      
+      
+      checkBrokenLinks (document.querySelectorAll(".the_item"), showFilter);
+
+      
+    }
     sortValue();
     
   }, false);
@@ -203,6 +228,9 @@ console.log("startsort...")
     //console.log("set count")
     
     let countDiv = document.querySelector('.count');
+    let issuesDiv = document.querySelector(".issues-count");
+    issuesDiv.innerText = getCount("issues", undefined);
+
     countDiv.innerText = getCount();
 
     let filters = document.querySelectorAll("[data-key]");
@@ -219,6 +247,7 @@ console.log("startsort...")
         //let span = label.appendChild(labelSpan)
         let labelSpan, span;
         let labelCount = getCount(filterSelector, filterKey);
+        
         //console.log("PPPP", span, filterKey, labelCount)
 
         if (label.querySelector("span") === null) {
@@ -253,7 +282,7 @@ console.log("startsort...")
     });
 
     
-    document.querySelector("head title").innerText = titleText + " (" + getCount() + ") ";
+    document.querySelector("head title").innerText = titleText + " (" + getCount("issues", undefined) + ") issues found";
     
   }
 
@@ -360,6 +389,7 @@ console.log("startsort...")
 
   let changeFilters = (items, mode) => {
 
+    
     // Create an object that looks like this:
     // list-title: [];
     filters = {};
@@ -373,8 +403,10 @@ console.log("startsort...")
           let name = attr.name;
           let keyName = name.replace("meta-", "");
           let metaPrefix = `meta-${mode}`;
+          
 
             if (name.includes(metaPrefix)) {
+              
               filters[keyName] = [];
             }
         });
@@ -393,9 +425,11 @@ console.log("startsort...")
         let stringLength = value.length;
 
         if (name.includes(metaPrefix)) {
-
+          //console.log("ITMES", filters[newName])
+          filters[newName].push(value);
+          // only add if it doesn't exist
           if (filters[newName].indexOf(value) == -1) {
-            filters[newName].push(value);
+            //filters[newName].push(value);
           }
           
         }
@@ -407,33 +441,41 @@ console.log("startsort...")
     
   }
 
-  function listUniqueValues (arr) {
-    var counts = {};
+  function listUniqueValues (arr, type) {
+    
+    var values = [];
     for (var i = 0; i < arr.length; i++) {
-        counts[arr[i]] = 1 + (counts[arr[i]] || 0);
+        values[arr[i]] = 1 + (values[arr[i]] || 0);
     }
-    return counts;
+    if (type === values || type === undefined) {
+      return values;
+    } else {
+      return i;
+    }
+    
   }
 
-  function isIssue(fieldValue, name) {
+  function hasIssue(fieldValues, name) {
     let issues = [undefined, null, false, "false", "undefined", "null", "tooBig", "hasBrokenLinks"];
     let is;
-    console.log("fieldval", fieldValue);
-    issues.forEach(function (issue){
-      if (fieldValue === issue) {
-        
-        if (issue === undefined || issue === "undefined") {
-          is = `Missing ${name} meta tag `;
-        }
-        if (issue === null || issue === "null" || issue === false || issue === "false") {
-          is = `Meta value for ${name} missing`;
-        }
-        if (issue === "tooBig") {
-          is = `Meta ${name} toobig`;
-        }
-      }
-    });
 
+    fieldValues.forEach(possibleValue => {
+      //console.log("fieldval", fieldValue);
+      issues.forEach(function (issue){
+        if (possibleValue === issue) {
+            is = issue;
+          if (issue === undefined || issue === "undefined") {
+            //is = `Missing ${name} meta tag `;
+          }
+          if (issue === null || issue === "null" || issue === false || issue === "false") {
+            //is = `Meta value for ${name} missing`;
+          }
+          if (issue === "tooBig") {
+            //is = `Meta ${name} toobig`;
+          }
+        }
+      });
+    });
     if (is) {
       return is;
     } else {
@@ -441,37 +483,193 @@ console.log("startsort...")
     }
     
   }
-  
+
+  function isSortable(fieldValues, name) {
+    let is;
+    
+    fieldValues.forEach(possibleValue => {
+      if (isNaN(possibleValue) === false) {
+        is = `Missing Links`;
+      } else if (name.includes("title-content")) {
+        is = `Title`;
+      } else if (name.includes("group")) {
+        
+        is = `Group`;
+      }
+    });
+    //console.log("includes group", name, is);
+    if (is) {
+      return is;
+    } else {
+      return false;
+    }
+    
+  }
+
+  function isFilter(fieldValues, name) {
+    let is;
+
+    fieldValues.forEach(possibleValue => {
+      if (name.includes("robots")) {
+        is = true;
+      }
+    });
+    if (is) {
+      return is;
+    } else {
+      return false;
+    }
+    
+  }
+
+    // Check broken links for the currently selected
+  function checkBrokenLinks (links, showFilter) {
+    //console.log("checking links....")
+      Util.pbLoadingAnimation(true);
+      let activeItems = [];
+
+      links.forEach(a => {
+        if (a.style.display !== "none") {
+          activeItems.push(a);
+        }
+      })
+      activeItems.forEach((item, itemIndex) => {
+        let fillDiv = item.querySelector(".meta_relative_links");
+        let link = item.href;
+
+          let getMeta = async(src) => {
+            const response = await fetch(src);
+            const html = await response.text();
+            let parser = new DOMParser();
+            // Parse the text
+            let doc = parser.parseFromString(html, "text/html");
+
+            // Parse the text
+            let urlSelectors = doc.querySelectorAll('a');
+                
+            let relUrls = [];
+            urlSelectors.forEach(a => {
+              if (a.href.includes(window.origin)) {
+                //console.log("href", a)
+                relUrls.push(a);
+              }
+            });
+
+            let notFound = [];
+            
+            
+
+            relUrls.forEach((l, index) => {
+              function getStatus () {
+                
+                  url = l.href;
+                  fetch(url)
+                  .then( res => {
+                    if (res.ok) {
+                      
+                    } else {
+                      //console.log("NOTFOUND", url, src)
+                      //fillDiv.innerText += url;
+                      notFound.push(url);
+                      item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
+                      item.setAttribute("meta-list-broken-links-count", notFound.length);
+                      fillDiv.innerText = notFound.length;
+                      fillDiv.innerHTML += `<li>${l}</li>`;
+                      //console.log("hasBrokenLinks", item)
+                      
+                    }
+                    // if (index === relUrls.length -1) {
+                    //   //console.log("urlSelectors", notFound.length);
+                    // }
+                  });
+                
+              }
+              
+              
+              getLinkStatus();
+              // Request both students and scores in parallel and return a Promise for both values.
+              // `Promise.all` returns a new Promise that resolves when all of its arguments resolve.
+              function getLinkStatus(){
+                return Promise.all([getStatus()]);
+              }
+
+              // When this Promise resolves, both values will be available.
+              getLinkStatus()
+                .then((response) => {
+                  // both have loaded!
+                  
+
+                  if (index === relUrls.length -1 && activeItems.length -1 === itemIndex) {
+                    console.log("ALL BROKEN LINKS LOADED", index, relUrls.length)
+                    
+                    setTimeout( function () {
+                      iso.updateSortData();
+                      //iso.arrange();
+                      sortValue()
+                      toggleMode();
+                      Util.pbLoadingAnimation(false);
+                    }, 1000)
+                    
+                    //iso.arrange();
+                  }
+                })
+              });
+            
+          }
+          
+
+
+        getMeta(link);
+
+      });
+  }
 
   function changeBar(obj) {
+    // <div class="btn" data-sort-value="meta-list-title">Title</div>
+    // <div class="btn" data-sort-value="meta-list-group">Group</div>
+    // <div class="btn" data-sort-value="meta-list-links">Number</div>
     dynamicSortBar.innerHTML = `
-    <div class='pb__sortable_group btns'></div>`;
+    <div class='btns'>
+    <ul class="radio-list radio-list--custom">
+          <li class="pb__sortable_group">
+            
+          </li>
+        </ul>
+    </div>`;
 
     dynamicBar.innerHTML = `
     <div class='pb__filter_group'></div>`;
 
     // Filter object contains all selectors and their values for the active mode. 
     for (var key in obj) {
-      let dataFilterValue;
 
       let values = obj[key];
-      
+      let uniqueCount = listUniqueValues(obj[key], "count");
+      console.log("possible values", key, listUniqueValues(obj[key]))
       if (values.length > 0) {
-        console.log("changeBar", obj)
-        console.log("unique values", listUniqueValues(obj[key]))
-
-        // A value is missing, so create a filter that lets us display items with a missing value
-        formFilter(key, values, "issue");
         
-        // else if (values.length <= 4) {
-        //   dataFilterValue = "key";
-        //   createFilter(key, values, dataFilterValue);
+        //formFilter(key, values)
+        // Sort, filter, or show issue
+        if (hasIssue(values, key)) {
+          console.log("possible issues", key)
+          formFilter(key, hasIssue(values, key), "issue");
+        }
+        if (isSortable(values, key)) {
+          console.log("sss", key, values)
+          formFilter(key, isSortable(values, key), "sort")
+        }
+        //console.log("UNIQUE VALUES", listUniqueValues(obj[key]))
+        if (isFilter(listUniqueValues(obj[key]), key)) {
+          //formFilter(key, values, "filter")
+        }
+        //console.log("changeBar", obj)
+        
+
+        // if (key === "list-robots") {
+        //   console.log("unique values robto", key, listUniqueValues(obj[key]))
+        //   formFilter(key, values, "filter");
         // } 
-        // else {
-          
-        //   dataFilterValue = key;
-        //   createFilter(key, values, dataFilterValue);
-        // }
+        
         
       }
       
@@ -479,7 +677,7 @@ console.log("startsort...")
 
     function doesNotExist (parent, selector) {
       let is;
-      if (parent.querySelector(selector) === null) {
+      if (parent.querySelector(selector) === null || parent.querySelector(selector) === undefined) {
         //console.log("parent", parent, selector);
         is = true;
       }
@@ -494,59 +692,84 @@ console.log("startsort...")
     function formFilter (groupName, values, typeClass) {
       // meta-list-description
       // Groupname = object key
-      let interactMode = "filter";
       let lookupKey = "meta-" + groupName;
-      
+      let groupKey = "meta-" + groupName;
 
       // Areas to put stuff
       let issuesDiv = document.querySelector(".pb__issues");
       let filterDiv = document.querySelector(".pb__filter_group")
-      let sortDiv = document.querySelector(".pb__sortable_group");
+      let sortDiv = document.querySelector(".pb__sort_bar");
 
       if (typeClass === "issue") {
         bar = issuesDiv;
       } else if (typeClass === "filter") {
         bar = filterDiv;
       } else if (typeClass === "sort") {
+        console.log("sortablekey", groupName)
         bar = sortDiv;
-        interactMode = "sort";
+        lookupKey = "meta-" + groupName;
       } 
 
-      // Types of elements to create
-      let label = document.createElement("label");
-      let div = document.createElement("div");
+ 
+      let groupHTML;
+      if (!bar.querySelector(`[data-key="${groupKey}"]`)) {
+        //console.log("exists already");
+        // Types of elements to create
+        let label = document.createElement("label");
+        let div = document.createElement("div");
+        
+        groupHTML = bar.appendChild(div);
+        groupHTML.appendChild(label);
+        groupHTML.setAttribute('data-key', groupKey);
+      }
+      let groupSelector = bar.querySelector(`[data-key="${groupKey}"]`);
 
-      let groupHTML = bar.appendChild(div);
-      groupHTML.appendChild(label);
-      groupHTML.setAttribute('data-key', lookupKey);
-      let groupSelector = document.querySelector(`[data-key="${lookupKey}"]`);
+      
+
+      
       //console.log("groupHTML", groupHTML)
 
-      // the Innerhtml for the group
-      values.forEach(value => {
-        console.log("vvvv", value)
-        if (isIssue(value, lookupKey)) {
-          
-          let dataValueSelector = `[data-${interactMode}-value="${value}"]`;
-          let innerDiv;
-          let friendlyLabel = isIssue(value, lookupKey);
+      function createSingleFilter(value) {
+        let innerDiv;
+        
+        let dataValueSelector = `[data-${typeClass}-value="${value}"]`;
+        
+        //let friendlyLabel = isIssue(value, lookupKey);
 
-          if (doesNotExist(groupSelector, dataValueSelector)) {
-            
-            if (interactMode !== "sort") {
-              console.log("EXISTS", isIssue(value), value, groupHTML)
-              innerDiv = `<div>
-              <input type="checkbox" name="checkbox-${groupName}" data-${interactMode}-value="${value}">
-              <label for="checkbox-${groupName}">${friendlyLabel} </label>
-              </div>`;
-              groupHTML.innerHTML += innerDiv;
-            } else {
-              let sortName = value.replace(`meta-${getMode()}-`, "");
-              groupHTML += `<div class="btn" data-${interactMode}-value="${value}">${sortName}</div>`;
-            }
+        // Check if already exists, if not, create it.
+        if (doesNotExist(groupSelector, dataValueSelector)) {
+          
+          if (typeClass === "issue" && !groupSelector.querySelector(`[data-filter-value='${value}']`)) {
+            innerDiv = `<div>
+            <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
+            <label for="checkbox-${groupName}">${groupName} ${value} </label>
+            </div>`;
+            groupSelector.innerHTML += innerDiv;
+          } else if (typeClass === "filter" && !groupSelector.querySelector(`[data-filter-value='${value}']`)) {
+            innerDiv = `<div>
+            <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
+            <label for="checkbox-${groupName}">${value} </label>
+            </div>`;
+            groupSelector.innerHTML += innerDiv;
+          } else if (typeClass === "sort") {
+            innerDiv = `<div class="btn" data-${typeClass}-value="${lookupKey}">${value}</div>`;
+            groupSelector.innerHTML += innerDiv;
           }
         }
-      });
+      }
+          
+      
+      if (Array.isArray(values)) {
+        values.forEach(value => {
+          //console.log("vvvv", value, typeof(value))
+          createSingleFilter(value);
+          
+        });
+      } else {
+        createSingleFilter(values);
+      }
+      // the Innerhtml for the group
+      
     }
   }
 

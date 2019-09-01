@@ -1,4 +1,6 @@
 {{ define "main" }}
+{{ $icons := resources.Get "dashboard/images/icons/icons.svg" }}
+
 <div class="pb__dashboardContent">
 
     <div class="pb__toolbar pb__toolbar__top flex">
@@ -8,9 +10,17 @@
               <svg class="icon" viewBox="0 0 24 24"><title>Search selection</title><g stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" stroke="currentColor" fill="none" stroke-miterlimit="10"><line x1="22" y1="22" x2="15.656" y2="15.656"></line><circle cx="10" cy="10" r="8"></circle></g></svg>
             </button>
         </div>
-          <button class="reset anim-menu-btn js-anim-menu-btn" aria-controls="modal1" aria-label="Toggle menu">
+        
+        <button data-post-processing="meta-list-broken-links" class="btn btn--subtle hidden checkBrokenLinks">Check 404</button>
+        {{/*  <button aria-controls="right-drawer" class="counter-container">
+            <svg class="icon-bell"><use xlink:href="{{ $icons.Permalink }}#icon-bell-1"></use></svg>
+          <span class="counter counter--critical counter--docked issues-count">0 <i class="sr-only">Notifications</i></span>
+        </button>  */}}
+        
+          {{/*  <button class="reset anim-menu-btn js-anim-menu-btn" aria-controls="modal1" aria-label="Toggle menu">
             <i class="anim-menu-btn__icon anim-menu-btn__icon--close" aria-hidden="true"></i>
-          </button>
+          </button>  */}}
+
       </div>
 
     <div class="pb__filter_bar pb__toolbar pb__toolbar__bottom flex">

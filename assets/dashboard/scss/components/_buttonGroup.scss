@@ -1,5 +1,6 @@
 /* -------------------------------- 
 
+File#: _1_btns
 Title: Buttons (Group)
 Descr: Group of connected buttons
 
@@ -28,23 +29,12 @@ Descr: Group of connected buttons
   }
 }
 
-// sizes
-.btns--sm {
-  font-size: var(--btn-sm);
-}
-
-.btns--md {
-  font-size: var(--btn-md);
-}
-
-.btns--lg {
-  font-size: var(--btn-lg);
-}
-
 // single button
 .btns__btn { 
   @include reset;
-  display: block;
+  display: block; // fallback
+  display: flex;
+  align-items: center;
   position: relative;
   padding: var(--space-xs) var(--space-sm);
 
@@ -53,7 +43,7 @@ Descr: Group of connected buttons
   }
 }
 
-.btns__btn--selected, .active {
+.btns__btn--selected {
   background-color: var(--color-primary);
   color: var(--color-white);
   @include fontSmooth;
