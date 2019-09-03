@@ -112,7 +112,7 @@ console.log("startsort...")
   // Update the running total after iso finishes arranging the items
   iso.on( 'arrangeComplete', function() {
     setCount();
-    console.log("arrange complete")
+    //console.log("arrange complete")
   });
   
   let sortValue = (e) => {
@@ -136,7 +136,7 @@ console.log("startsort...")
       sortKey = sortKey.replace(/-/g, "_");
 
 
-      console.log("xxxx", sortValue, sortKey)
+      //console.log("xxxx", sortValue, sortKey)
     }
     
     // Select the key to sort by. Sort by the matching attribute value
@@ -168,6 +168,19 @@ console.log("startsort...")
     iso.arrange();
     //console.log("sorting...", buttonFilters)
     //iso.updateSortData( document.querySelectorAll(".the_item") )
+  }
+  
+  function toggleRadio(target) {
+    let nearestRadios = target.closest(".btns--radio").querySelectorAll('[type="radio"]');
+    console.log("all radios", nearestRadios)
+    nearestRadios.forEach(r => {
+      console.log("target", target, r.value, target.closest('[input]'))
+      r.removeAttribute('checked');
+
+      if (r.value === target.value) {
+        r.setAttribute('checked', "checked");
+      }
+    })
   }
 
   // For sort buttons that are clicked, toggle the active state. The filter checks for the active state.
@@ -202,7 +215,13 @@ console.log("startsort...")
       }
       
     }
-    if (e.target.closest('[data-toggle] input')) {
+    if (e.target.closest('[data-toggle] label')) {
+      console.log("toggle mode")
+      let t = e.target.closest('[data-toggle] label');
+      let targetRadio = t.getAttribute("for");
+      let targetQuery = t.parentNode.querySelector(`[value="${targetRadio}"]`)
+      toggleRadio(targetQuery)
+
       toggleMode();
     }
     if (e.target.closest('[data-post-processing]')) {
@@ -228,11 +247,14 @@ console.log("startsort...")
     //console.log("set count")
     
     let countDiv = document.querySelector('.count');
+    let allDiv = document.querySelector(".all_count");
+    let brokenLinkCounterDiv = document.querySelector(".broken-link-count");
     let issuesDiv = document.querySelector(".issues-count");
     issuesDiv.innerText = getCount("issues", undefined);
 
     countDiv.innerText = getCount();
-
+    allDiv.innerText = getCount(undefined, "all")
+    brokenLinkCounterDiv.innerText = getCount(undefined, "broken_count");
     let filters = document.querySelectorAll("[data-key]");
     
     
@@ -270,7 +292,7 @@ console.log("startsort...")
           }
 
           // Hide filters with no current value
-          if (filter.parentNode.classList.contains("pb__issues")) {
+          if (filter.parentNode.classList.contains("pb__selected_issues")) {
             if (labelCount === 0) {
               filter.style.display = "none";
             } else {
@@ -455,9 +477,11 @@ console.log("startsort...")
     
   }
 
-  function hasIssue(fieldValues, name) {
+  function hasIssue(fieldValues, name, returnType) {
     let issues = [undefined, null, false, "false", "undefined", "null", "tooBig", "hasBrokenLinks"];
     let is;
+    let label;
+    let friendlyGroup = friendlyLabel(name);
 
     fieldValues.forEach(possibleValue => {
       //console.log("fieldval", fieldValue);
@@ -465,19 +489,26 @@ console.log("startsort...")
         if (possibleValue === issue) {
             is = issue;
           if (issue === undefined || issue === "undefined") {
-            //is = `Missing ${name} meta tag `;
+            label = `Missing ${friendlyGroup} tag`;
           }
           if (issue === null || issue === "null" || issue === false || issue === "false") {
-            //is = `Meta value for ${name} missing`;
+            label = `${friendlyGroup} missing`;
           }
           if (issue === "tooBig") {
-            //is = `Meta ${name} toobig`;
+            label = `${friendlyGroup} is too long`;
+          }
+          if (issue === "hasBrokenLinks") {
+            label = `Page has broken links`
           }
         }
       });
     });
     if (is) {
-      return is;
+      if (returnType === "label") {
+        return label;
+      } else {
+        return is;
+      }
     } else {
       return false;
     }
@@ -516,7 +547,7 @@ console.log("startsort...")
       }
     }
 
-    console.log("fff", fieldValues, is, name)
+    //console.log("fff", fieldValues, is, name)
     if (is.length > 0) {
       return is;
     } else {
@@ -632,13 +663,11 @@ console.log("startsort...")
     // <div class="btn" data-sort-value="meta-list-group">Group</div>
     // <div class="btn" data-sort-value="meta-list-links">Number</div>
     dynamicSortBar.innerHTML = `
-    <div class='btns'>
     <ul class="radio-list radio-list--custom">
-          <li class="pb__sortable_group">
-            
-          </li>
-        </ul>
-    </div>`;
+      <li class="pb__sortable_group">
+        
+      </li>
+    </ul>`;
 
     dynamicBar.innerHTML = `
     <div class='pb__filter_group'></div>`;
@@ -648,33 +677,25 @@ console.log("startsort...")
 
       let values = obj[key];
       let uniqueCount = listUniqueValues(obj[key], "count");
-      console.log("possible values", key, listUniqueValues(obj[key]))
+      //console.log("possible values", key, listUniqueValues(obj[key]))
       if (values.length > 0) {
         
         //formFilter(key, values)
         // Sort, filter, or show issue
         if (hasIssue(values, key)) {
-          console.log("possible issues", key)
-          formFilter(key, hasIssue(values, key), "issue");
+          //console.log("possible issues", key)
+          formFilter(key, hasIssue(values, key), "issue", hasIssue(values, key, "label"));
         }
         if (isSortable(values, key)) {
-          console.log("sss", key, values)
+          //console.log("sss", key, values)
           formFilter(key, isSortable(values, key), "sort")
         }
         
         if (isFilter(listUniqueValues(obj[key]), key)) {
-          console.log("UNIQUE VALUES", listUniqueValues(obj[key]))
+          //console.log("UNIQUE VALUES", listUniqueValues(obj[key]))
           values = isFilter(listUniqueValues(obj[key]), key)
           formFilter(key, values, "filter")
         }
-        //console.log("changeBar", obj)
-        
-
-        // if (key === "list-robots") {
-        //   console.log("unique values robto", key, listUniqueValues(obj[key]))
-        //   formFilter(key, values, "filter");
-        // } 
-        
         
       }
       
@@ -694,23 +715,24 @@ console.log("startsort...")
       }
     }
 
-    function formFilter (groupName, values, typeClass) {
+    function formFilter (groupName, values, typeClass, friendlyName) {
       // meta-list-description
       // Groupname = object key
       let lookupKey = "meta-" + groupName;
       let groupKey = "meta-" + groupName;
 
       // Areas to put stuff
-      let issuesDiv = document.querySelector(".pb__issues");
+      let issuesDiv = document.querySelector(".pb__selected_issues");
       let filterDiv = document.querySelector(".pb__filter_group")
-      let sortDiv = document.querySelector(".pb__sort_bar");
+      let sortDiv = document.querySelector(".pb__sortable_group");
 
       if (typeClass === "issue") {
         bar = issuesDiv;
       } else if (typeClass === "filter") {
+        
+        
         bar = filterDiv;
       } else if (typeClass === "sort") {
-        console.log("sortablekey", groupName)
         bar = sortDiv;
         lookupKey = "meta-" + groupName;
       } 
@@ -720,13 +742,17 @@ console.log("startsort...")
       if (!bar.querySelector(`[data-key="${groupKey}"]`)) {
         //console.log("exists already");
         // Types of elements to create
-        let label = document.createElement("label");
+        
         let div = document.createElement("div");
         
         groupHTML = bar.appendChild(div);
-        groupHTML.appendChild(label);
         groupHTML.setAttribute('data-key', groupKey);
-        label.innerText = groupName;
+        
+        if (typeClass === "filter") {
+          let label = document.createElement("label");
+          groupHTML.appendChild(label);
+          label.innerText = friendlyLabel(groupName, "string");
+        }
       }
       let groupSelector = bar.querySelector(`[data-key="${groupKey}"]`);
 
@@ -748,17 +774,17 @@ console.log("startsort...")
           if (typeClass === "issue" && !groupSelector.querySelector(`[data-filter-value='${value}']`)) {
             innerDiv = `<div>
             <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
-            <label for="checkbox-${groupName}">${groupName} ${value} </label>
+            <label for="checkbox-${groupName}">${friendlyName} <span class="thisCount"></span></label>
             </div>`;
             groupSelector.innerHTML += innerDiv;
           } else if (typeClass === "filter" && !groupSelector.querySelector(`[data-filter-value='${value}']`)) {
             innerDiv = `<div>
             <input type="checkbox" name="checkbox-${groupName}" data-filter-value="${value}">
-            <label for="checkbox-${groupName}">${value} </label>
+            <label for="checkbox-${groupName}">${value} <span class="thisCount"></span></label>
             </div>`;
             groupSelector.innerHTML += innerDiv;
           } else if (typeClass === "sort") {
-            innerDiv = `<div class="btn" data-${typeClass}-value="${lookupKey}">${value}</div>`;
+            innerDiv = `<div class="btn-sort" data-${typeClass}-value="${lookupKey}">${value}</div>`;
             groupSelector.innerHTML += innerDiv;
           }
         }
@@ -779,6 +805,28 @@ console.log("startsort...")
     }
   }
 
+  function friendlyLabel (name, type) {
+    let reName = new RegExp( "-content|-limit", 'gi' );
+
+    let friendly = name.replace(reName, "");
+    let prefix = "";
+    if (getMode() === "facebook") {
+      //prefix = "og:"
+    } else if (getMode() === "google") {
+      //prefix = ""
+    } else if (getMode() === "twitter") {
+      //prefix = "twitter:"
+    }
+    if (type === "string") {
+      friendly = friendly.replace((getMode() + "-"), "")
+      //friendly = prefix + friendly;
+    } else {
+      friendly = `<span class="meta_prefix prefix_${getMode()}">` + prefix + friendly + '</span>';
+    }
+    
+    console.log("friendly", friendly, getMode())
+    return friendly;
+  }
 
   function toggleMode (e) {
     let toggleBtns = document.querySelector('[data-toggle]');

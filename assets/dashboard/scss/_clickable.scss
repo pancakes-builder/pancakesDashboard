@@ -1,4 +1,4 @@
-button:hover {
+button:hover, .btn-sort:hover, .btn:hover {
     cursor: pointer;
 }
 // Buttons that display after the initial items are formed
@@ -16,12 +16,18 @@ button:hover {
     fill: currentColor; 
 }
 button, .btn {
-    &:hover {
-        cursor: pointer;
-    }
     &.active, &:hover {
         background-color: var(--color-primary, hsl(220, 90%, 56%));
         color: var(--color-white, hsl(0, 0%, 100%));
         border-color: var(--color-primary, hsl(220, 90%, 56%));
+    }
+}
+.btn-sort {
+    margin-right: 15px;
+    font-weight: bold;
+    color: #ddd;
+
+    &.active {
+        color: var(--color-primary);
     }
 }

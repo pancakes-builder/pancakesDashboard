@@ -10,8 +10,9 @@
               <svg class="icon" viewBox="0 0 24 24"><title>Search selection</title><g stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" stroke="currentColor" fill="none" stroke-miterlimit="10"><line x1="22" y1="22" x2="15.656" y2="15.656"></line><circle cx="10" cy="10" r="8"></circle></g></svg>
             </button>
         </div>
+
+            
         
-        <button data-post-processing="meta-list-broken-links" class="btn btn--subtle hidden checkBrokenLinks">Check 404</button>
         {{/*  <button aria-controls="right-drawer" class="counter-container">
             <svg class="icon-bell"><use xlink:href="{{ $icons.Permalink }}#icon-bell-1"></use></svg>
           <span class="counter counter--critical counter--docked issues-count">0 <i class="sr-only">Notifications</i></span>
@@ -20,16 +21,35 @@
           {{/*  <button class="reset anim-menu-btn js-anim-menu-btn" aria-controls="modal1" aria-label="Toggle menu">
             <i class="anim-menu-btn__icon anim-menu-btn__icon--close" aria-hidden="true"></i>
           </button>  */}}
-
+          <div class="running_total">selected <span class="count"></span> of (<span class="all_count"></span>)</div>
       </div>
 
-    <div class="pb__filter_bar pb__toolbar pb__toolbar__bottom flex">
-      
-
-    </div>
-
-    <div class="pb__sort_bar pb__toolbar flex">
-      
+    <div class="pb__toolbar pb__toolbar__bottom flex">
+       
+        <div class="pb__sort_bar"></div>
+        <span> | </span>
+        <div data-toggle="mode" class="btns btns--radio">
+            <div>
+                <input value="list" type="radio" name="radioButton" id="radio1" checked>
+                <label class="btns__btn" for="list">List</label>
+            </div>
+    
+            <div>
+                <input value="google" type="radio" name="radioButton" id="radio3">
+                <label class="btns__btn" for="google">Google</label>
+            </div>
+    
+            <div>
+                <input value="twitter" type="radio" name="radioButton" id="radio2">
+                <label class="btns__btn" for="twitter">Twitter</label>
+            </div>
+            
+            <div>
+                <input value="facebook" type="radio" name="radioButton" id="radio3">
+                <label class="btns__btn" for="facebook">Facebook</label>
+            </div>
+          </div>
+        
 
     </div>
 

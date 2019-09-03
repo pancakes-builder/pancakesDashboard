@@ -3,43 +3,16 @@
 
 {{ partial "dashboard/modebuttons.html" . }}
 
-<h3>1). Select Mode</h3>
-
 <div class="margin-bottom-lg">
-    <fieldset id="previewMode">
-    <ul data-toggle="mode" class="radio-list radio-list--custom">
-        <li>
-            <input value="list" type="radio" name="radioButton" id="radio1" checked>
-            <label for="list">List</label>
-        </li>
 
-        <li>
-            <input value="google" type="radio" name="radioButton" id="radio3">
-            <label for="google">Google</label>
-        </li>
-
-        <li>
-            <input value="twitter" type="radio" name="radioButton" id="radio2">
-            <label for="twitter">Twitter</label>
-        </li>
-        
-        <li>
-            <input value="facebook" type="radio" name="radioButton" id="radio3">
-            <label for="facebook">Facebook</label>
-        </li>
-        </li>
-    </ul>
-    </fieldset>
-</div>
-
-<div class="margin-bottom-lg"> 
-    <h3>Sections (<span class="count"></span>)</h3>
     <ul class="groups" data-key="meta-all-group">
 
         
     </ul>
 </div>
+<hr>
+<div class="pb__filter_bar margin-bottom-lg"></div>
 
-
+<button data-post-processing="meta-list-broken-links" class="btn btn--subtle hidden checkBrokenLinks">Find Broken Links</button>
 
 </aside>

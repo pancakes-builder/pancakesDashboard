@@ -13,6 +13,21 @@
         li {
             text-transform: capitalize;
         }
+
+        .prefix_google {
+            color: $google_brand_color;
+        }
+        .prefix_facebook {
+            color: $facebook_brand_color;
+        }
+        .prefix_twitter {
+            color: $twitter_brand_color;
+        }
+
+        // List items with checkboxes
+        [data-key] div {
+            line-height: 1.5;
+        }
     }
     &sidebar_left {
         padding: 15px;
@@ -28,10 +43,19 @@
         padding-top: 15px;
         justify-content: center;
         align-items: flex-start;
-        display: flex;
+        display: grid;
+        grid-template-rows: repeat(4, 55px);
     }
     &sidebar_content {
         padding: 15px;
         box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.2);
-    }   
+    }
+
+    &sidebar_content_toggle {
+        display: none;
+        
+        &.active {
+            display: block;
+        }
+    }
 }

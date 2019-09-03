@@ -60,7 +60,6 @@
   function getCount(key, value) {
     
     let all;
-
     if (value !== undefined && key !== undefined) {
       let query = "[" + key +"='" + value + "']";
       all = document.querySelectorAll(query);
@@ -76,23 +75,38 @@
       });
 
     } else if (key !== undefined) {
-      all = document.querySelectorAll(`[${key}]`)
+      all = document.querySelectorAll(`[${key}]`);
     } else {
       all = document.querySelectorAll(".the_item");
     }
 
     let visible = [];
-    
+    let countTotal = [];
+    let brokenTotal = 0;
 
     all.forEach(item => {
       let display = getComputedStyle(item).display;
-      
+      countTotal.push(item);
+
       if (display !== "none") {
         visible.push(item);
+
+        if (item.getAttribute("meta-list-broken-links-count")) {
+          brokenTotal += parseInt(item.getAttribute("meta-list-broken-links-count"));
+        }
+        
       }
     });
     //console.log("visible", key, value, visible.length)
-    return visible.length;
+    if (value === "all") {
+      return countTotal.length;
+    } if (value ==="broken_count") {
+      console.log("broken total", brokenTotal)
+      return brokenTotal;
+    } else {
+      return visible.length;
+    }
+    
   }
 
   let getMetaValue = (selector, head) => {
@@ -364,9 +378,44 @@
   window.addEventListener("DOMContentLoaded", function() {
     //console.log("parseXML test", parseXML());
     parseXML();
+    toggleDrawerVisibility();
   });
 
+  function toggleDrawerVisibility () {
+    let drawerButtons = document.querySelectorAll("[pb-drawer-target]");
+
+    drawerButtons.forEach(btn => {
+      
+      let drawerTarget = btn.getAttribute('pb-drawer-target');
+      let drawerTargetDiv = document.querySelector(`.${drawerTarget}`);
+      drawerTargetDiv.classList.remove("active");
+      //console.log("dd", drawerTarget, drawerTargetDiv)
+      if (btn.classList.contains("active")) {
+        drawerTargetDiv.classList.add("active");
+      }
+    });
+
+  }
+
   document.addEventListener("click", function(e) {
+
+    let drawerButtons = document.querySelectorAll("[pb-drawer-target]");
+    let check = e.target.closest("[pb-drawer-target]");
+    
+      if (check) {
+        
+        drawerButtons.forEach(btn => {
+          console.log("click", btn)
+          btn.classList.remove("active");
+
+          if (btn.getAttribute("pb-drawer-target") === check.getAttribute("pb-drawer-target")) {
+            console.log("target", btn)
+            btn.classList.add("active");
+          }
+        });
+        toggleDrawerVisibility();
+        
+    }
     // if (e.target.closest('[aria-controls="right-drawer"]')) {
     //   document.body.classList.toggle("open-drawer-right");
     // }
