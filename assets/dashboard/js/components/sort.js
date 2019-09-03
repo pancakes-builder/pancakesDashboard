@@ -300,7 +300,7 @@ console.log("startsort...")
     issuesDiv.innerText = getCount("issues", undefined);
 
     countDiv.innerText = getCount();
-    allDiv.innerText = getCount(undefined, "all")
+    allDiv.innerText = getCount(undefined, "a")
     brokenLinkCounterDiv.innerText = getCount(undefined, "broken_count");
     let filters = document.querySelectorAll("[data-key]");
     
@@ -317,7 +317,7 @@ console.log("startsort...")
         let labelSpan, span;
         let labelCount = getCount(filterSelector, filterKey);
         
-        //console.log("PPPP", span, filterKey, labelCount)
+        console.log("PPPP", span, filterKey, labelCount)
 
         if (label.querySelector("span") === null) {
           labelSpan = document.createElement("span");

@@ -63,7 +63,7 @@
     if (value !== undefined && key !== undefined) {
       let query = "[" + key +"='" + value + "']";
       all = document.querySelectorAll(query);
-      //console.log("ALL", all, query)
+      console.log("ALL", key, value)
     } else if (key === "issues") {
       all = [];
       
@@ -97,13 +97,15 @@
         
       }
     });
-    //console.log("visible", key, value, visible.length)
-    if (value === "all") {
+    
+    if (value === "a") {
+      console.log("visible1", key, value, countTotal.length)
       return countTotal.length;
     } if (value ==="broken_count") {
-      console.log("broken total", brokenTotal)
+      console.log("visible2", key, value, brokenTotal.length)
       return brokenTotal;
     } else {
+      console.log("visible3", key, value, visible.length)
       return visible.length;
     }
     
