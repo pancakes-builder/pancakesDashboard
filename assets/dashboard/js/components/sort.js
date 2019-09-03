@@ -5,6 +5,7 @@ console.log("startsort...")
   
   setCount();
   
+  
   function getMode () {
     let toggleBtns = document.querySelector('[data-toggle]');
     let toggleValues = toggleBtns.querySelectorAll('input');
@@ -37,7 +38,18 @@ console.log("startsort...")
     // options
     layoutMode: 'vertical',
     itemSelector: '.the_item',
+    // sortAscending: function(){
+    //   let direction = document.querySelector(".btn-sort");
+    //   console.log("dir", direction)
+    //   if (direction === null) {
+    //     direction = false;
+    //   } else {
+    //     direction = true;
+    //   }
+    //   return direction;
+    // },
     getSortData: {
+      
       //title: '[meta-list-title]',
       title_content: function(elem) {
         //console.log("SORTING BY TITLE")
@@ -119,12 +131,19 @@ console.log("startsort...")
     buttonFilters = {};
 
     let sortBtns = document.querySelectorAll('[data-sort-value]');
-    let sortValue, filterValue;
-
+    let sortValue, filterValue, sortDirection = false;
+    
+    
     // Check each sort value for the active sortable state
     sortBtns.forEach(sortBtn => {
       if (sortBtn.classList.contains("active")) {
         sortValue = sortBtn.getAttribute('data-sort-value');
+        sortDirection = sortBtn.getAttribute('data-sort-asc');
+        if (sortDirection === "false") {
+          sortDirection = false;
+        } else if (sortDirection === "true") {
+          sortDirection = true;
+        }
       }
     });
      
@@ -164,7 +183,8 @@ console.log("startsort...")
 
     });
     //iso.arrange();
-    iso.arrange({ sortBy: sortKey });
+    console.log("arrange...", sortDirection)
+    iso.arrange({ sortBy: sortKey, sortAscending: sortDirection });
     iso.arrange();
     //console.log("sorting...", buttonFilters)
     //iso.updateSortData( document.querySelectorAll(".the_item") )
@@ -175,22 +195,49 @@ console.log("startsort...")
     console.log("all radios", nearestRadios)
     nearestRadios.forEach(r => {
       console.log("target", target, r.value, target.closest('[input]'))
-      r.removeAttribute('checked');
+      r.checked = false;
 
       if (r.value === target.value) {
-        r.setAttribute('checked', "checked");
+        r.checked = true;
       }
     })
+  }
+
+  function getSortDirection () {
+    let direction = document.querySelector("#sortableContent").getAttribute("data-sort-asc");
+    console.log("direction", direction)
+    if (direction === true) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // For sort buttons that are clicked, toggle the active state. The filter checks for the active state.
   document.addEventListener("click", function(e) {
 
     let sortBtns = document.querySelectorAll('[data-sort-value]');
+
     if (e.target.closest('[data-sort-value]')) {
+      let sortBtn = e.target.closest('[data-sort-value]');
+
+      if (!sortBtn.classList.contains("active")) {
+
+      } else {
+        if (sortBtn.getAttribute("data-sort-asc") === "false") {
+          sortBtn.setAttribute("data-sort-asc", true);
+          document.querySelector("#sortableContent").setAttribute("data-sort-asc", true);
+        } else {
+          sortBtn.setAttribute("data-sort-asc", false);
+          document.querySelector("#sortableContent").setAttribute("data-sort-asc", false);
+        }
+        
+      }
       
+
       sortBtns.forEach(sortBtn => {
         sortBtn.classList.remove("active");
+        
       })
       e.target.closest('[data-sort-value]').classList.toggle("active");
 
@@ -784,7 +831,7 @@ console.log("startsort...")
             </div>`;
             groupSelector.innerHTML += innerDiv;
           } else if (typeClass === "sort") {
-            innerDiv = `<div class="btn-sort" data-${typeClass}-value="${lookupKey}">${value}</div>`;
+            innerDiv = `<div class="btn-sort" data-sort-asc="true" data-${typeClass}-value="${lookupKey}">${value}</div>`;
             groupSelector.innerHTML += innerDiv;
           }
         }

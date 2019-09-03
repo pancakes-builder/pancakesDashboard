@@ -1,6 +1,11 @@
-button:hover, .btn-sort:hover, .btn:hover {
+button:hover, .btn-sort:hover, .btn:hover, .btns__btn:hover {
     cursor: pointer;
 }
+.btns--radio {
+    input[type=radio]:checked+label:hover {
+        cursor: initial;
+    }
+} 
 // Buttons that display after the initial items are formed
 [data-post-processing] {
     //display: none;
@@ -26,6 +31,18 @@ button, .btn {
     margin-right: 15px;
     font-weight: bold;
     color: #ddd;
+
+    &:after {
+        display: inline-block;
+        margin-left: 5px;
+    }
+    &[data-sort-asc="true"]:after {
+        content: ' \2193';
+    }
+    &[data-sort-asc="false"]:after {
+        content: ' \2191';
+    }
+    
 
     &.active {
         color: var(--color-primary);
