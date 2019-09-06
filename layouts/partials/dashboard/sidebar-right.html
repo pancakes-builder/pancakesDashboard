@@ -4,11 +4,11 @@
     <div class="pb__sidebar_vertical_buttons">
         <button aria-controls="right-drawer" class="counter-container active" pb-drawer-target="pb__issues">
             <svg class="icon-bell"><use xlink:href="{{ $icons.Permalink }}#icon-bell-1"></use></svg>
-            <span class="counter counter--critical counter--docked issues-count">0 <i class="sr-only">Notifications</i></span>
+            <span class="counter counter--critical counter--docked issues-count">- <i class="sr-only">Notifications</i></span>
         </button>
         <button aria-controls="right-drawer" class="counter-container" pb-drawer-target="pb__broken_links">
             <svg class="icon-link"><use xlink:href="{{ $icons.Permalink }}#icon-link"></use></svg>
-            <span class="counter counter--critical counter--docked broken-link-count">0 <i class="sr-only">404 link checker</i></span>
+            <span class="counter counter--critical counter--docked broken-link-count">- <i class="sr-only">404 link checker</i></span>
         </button>
         
     </div>
@@ -17,16 +17,12 @@
     
         
         <div class="pb__sidebar_content_toggle pb__issues">
-            <h3>Issues</h3>
-            <ul>
-                <li>- Select a mode to check for issues.</li>
-                <li>- Filter by pages with these specific issues.</li><br>
-            </ul>
+            <h3>Pages with Issues</h3>
             <ul class="pb__selected_issues"></ul>
         </div>
 
         <div class="pb__sidebar_content_toggle pb__broken_links">
-            <h3>Broken Links</h3>
+            <h3>View Broken Internal Links</h3>
             <p>Select an item to view broken links.</p>
             <ul class="pb__selected_broken_links"> </ul>
         </div>

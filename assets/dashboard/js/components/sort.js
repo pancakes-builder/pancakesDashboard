@@ -5,7 +5,6 @@ console.log("startsort...")
   
   setCount();
   
-  
   function getMode () {
     let toggleBtns = document.querySelector('[data-toggle]');
     let toggleValues = toggleBtns.querySelectorAll('input');
@@ -393,7 +392,7 @@ console.log("startsort...")
 
           if (checkAttribute(name, "title", value)) {
             //console.log("title", value)
-            item.querySelector(".meta_title").innerText = value;
+            
             if (mode === "google") {
               if (stringLength > 65) {
                 value = value.substring(0, 65);
@@ -412,16 +411,22 @@ console.log("startsort...")
                 value = value + "...";
               }
             }
+            item.querySelector(".meta_title").innerText = value;
           }
 
           if (checkAttribute(name, "url", value)) {
             //console.log("title", value)
-            item.querySelector(".meta_url").innerText = value;
+
+            if (mode === "list") {
+              value = value.replace(window.origin, "");
+            }
+            
+            
+            item.querySelector(".meta_url_text").innerText = value;
           }
 
-          if (checkAttribute(name, "relativeLinks", value)) {
-            item.querySelector(".meta_relative_urls").innerText = value;
-            
+          if (checkAttribute(name, "broken-links-count", value)) {
+            item.querySelector(".broken_links_count").innerText = value;
           }
 
           if (checkAttribute(name, "description-content", value)) {
@@ -446,6 +451,13 @@ console.log("startsort...")
               }
             }
             item.querySelector(".meta_description").innerText = value;
+          }
+          if (checkAttribute(name, "group", value)) {
+            item.querySelector(".meta_group").innerText = value;
+          }
+
+          if (checkAttribute(name, "list-url", value)) {
+            item.querySelector(".meta_link").href = value;
           }
         }
       });
@@ -631,37 +643,48 @@ console.log("startsort...")
             let relUrls = [];
             urlSelectors.forEach(a => {
               if (a.href.includes(window.origin)) {
-                //console.log("href", a)
+                console.log("href", a)
                 relUrls.push(a);
               }
             });
+            
 
             let notFound = [];
             
             
 
             relUrls.forEach((l, index) => {
+              
               function getStatus () {
                 
-                  url = l.href;
+                  let url = l.href;
+                  
                   fetch(url)
                   .then( res => {
                     if (res.ok) {
-                      
+                      console.log("relOK", url)
                     } else {
-                      //console.log("NOTFOUND", url, src)
                       //fillDiv.innerText += url;
-                      notFound.push(url);
+                      if (notFound.indexOf(url) === -1) {
+                        notFound.push(url);
+                      }
+                      
                       item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
                       item.setAttribute("meta-list-broken-links-count", notFound.length);
-                      fillDiv.innerText = notFound.length;
-                      fillDiv.innerHTML += `<li>${l}</li>`;
-                      //console.log("hasBrokenLinks", item)
+
+                      brokenLinks[urlToId(item.getAttribute("meta-list-url"))] = notFound;
+                      
+                      //fillDiv.innerText = notFound.length;
+                      //fillDiv.innerHTML += `<li>${l}</li>`;
+                      console.log("blinkss", brokenLinks[urlToId(item.getAttribute("meta-list-url"))])
+                      
                       
                     }
-                    // if (index === relUrls.length -1) {
-                    //   //console.log("urlSelectors", notFound.length);
-                    // }
+                    if (index === relUrls.length -1) {
+                      //item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
+                      //brokenLinks[urlToId(item.getAttribute("meta-list-url"))] = notFound;
+                      console.log("NOTFOUND", src, url, notFound)
+                    }
                   });
                 
               }
@@ -682,6 +705,7 @@ console.log("startsort...")
 
                   if (index === relUrls.length -1 && activeItems.length -1 === itemIndex) {
                     console.log("ALL BROKEN LINKS LOADED", index, relUrls.length)
+                    console.log("broken link object", brokenLinks)
                     
                     setTimeout( function () {
                       iso.updateSortData();

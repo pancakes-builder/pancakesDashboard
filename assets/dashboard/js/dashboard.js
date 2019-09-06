@@ -3,8 +3,16 @@
 
   const dashboardContent = document.querySelector(".pb__dashboardContent");
   const sortableContent = document.querySelector("#sortableContent");
+  
+  let brokenLinks = {};
 
-
+  function urlToId(url) {
+    let id = url.replace(window.origin, "");
+    id = id.replace(/\//g, "_");
+    console.log("blinks s", id)
+    return id;
+  }
+  
   // Starter function
   // Given a sitemap, return an array of links
   let parseXML = async () => {
@@ -246,7 +254,7 @@
         //console.log(link, metaData)
         
         
-        let item = document.createElement("a");
+        let item = document.createElement("div");
         item.className = "the_item";
         item.href = link;
         item.target = "_blank";
@@ -254,11 +262,34 @@
         thisItem.innerHTML = `
         <div class="meta_image"></div>
         <div class="card_footer">
-        <div class="meta_url"></div>
+        <a class="meta_url meta_link" target="_blank">
+        <span class="meta_url_text"></span>
+        <svg class="icon-link-external">
+        <svg id="icon-link-external" viewBox="0 0 512 512">
+          <path d="m384 384l-256 0 0-255 64-1 0-64-128 0 0 384 384 0 0-160-64 0z m-128-320l64 64-96 96 64 64 96-96 64 64 0-192z"></path>
+        </svg>
+        </svg>
+        </a>
         <div class="meta_title"></div>
         <div class="meta_description"></div>
-        <div class="meta_relative_links"></div>
-        </div>`;
+        <div class="meta_broken_links">
+        
+
+        <button aria-controls="right-drawer" class="counter-container" pb-drawer-target="pb__broken_links">
+            <svg class="icon-link">
+              <svg id="icon-link" viewBox="0 0 512 512">
+                <path d="m384 128l-69 0c24 16 47 45 54 64l15 0c32 0 64 32 64 64 0 32-33 64-64 64l-96 0c-32 0-64-32-64-64 0-11 3-22 9-32l-69 0c-2 11-4 21-4 32 0 64 64 128 128 128 64 0 32 0 96 0 64 0 128-64 128-128 0-64-64-128-128-128z m-240 192l-15 0c-33 0-64-32-64-64 0-32 32-64 64-64l96 0c31 0 64 32 64 64 0 12-4 23-9 32l68 0c3-10 4-21 4-32 0-64-63-128-127-128-64 0-33 0-97 0-64 0-128 64-128 128 0 64 64 128 128 128l69 0c-24-16-46-44-53-64z"></path>
+              </svg>
+            </svg>
+            <span class="counter counter--critical counter--docked broken_links_count">-</span>
+        </button>
+
+        
+      </div>
+        <div class="meta_group"></div>
+        
+        </div>
+        `;
 
           
 
@@ -383,17 +414,34 @@
     toggleDrawerVisibility();
   });
 
-  function toggleDrawerVisibility () {
+  function toggleDrawerVisibility (selectedBtn, selectedItem) {
     let drawerButtons = document.querySelectorAll("[pb-drawer-target]");
 
+    let bLinks;
+    
+    
     drawerButtons.forEach(btn => {
-      
       let drawerTarget = btn.getAttribute('pb-drawer-target');
       let drawerTargetDiv = document.querySelector(`.${drawerTarget}`);
       drawerTargetDiv.classList.remove("active");
       //console.log("dd", drawerTarget, drawerTargetDiv)
       if (btn.classList.contains("active")) {
         drawerTargetDiv.classList.add("active");
+
+        if (selectedItem !== undefined) {
+          bLinks = brokenLinks[urlToId(selecteditem.getAttribute("meta-list-url"))];
+          console.log('blinks', urlToId(selecteditem.getAttribute("meta-list-url")), brokenLinks)
+
+          if (bLinks !== undefined && bLinks !== null) {
+            let bLinksHTML;
+
+            bLinks.forEach(bLink => {
+              bLinksHTML += `<li> ${bLink} </li>`;
+            });
+            drawerTargetDiv.querySelector(".pb__selected_broken_links").innerHTML = bLinksHTML;
+          }
+          
+        }
       }
     });
 
@@ -401,21 +449,35 @@
 
   document.addEventListener("click", function(e) {
 
-    let drawerButtons = document.querySelectorAll("[pb-drawer-target]");
+    let drawerButtons = document.querySelectorAll(".pb__sidebar [pb-drawer-target]");
+    let itemButtons = document.querySelectorAll(".the_item [pb-drawer-target]");
+
+    let allButtons = document.querySelectorAll("[pb-drawer-target]");
     let check = e.target.closest("[pb-drawer-target]");
-    
+    let selectedBtn, selectedItem;
+
       if (check) {
         
-        drawerButtons.forEach(btn => {
+        allButtons.forEach(btn => {
           console.log("click", btn)
           btn.classList.remove("active");
 
-          if (btn.getAttribute("pb-drawer-target") === check.getAttribute("pb-drawer-target")) {
-            console.log("target", btn)
-            btn.classList.add("active");
-          }
+          drawerButtons.forEach(b => {
+            if (b.getAttribute("pb-drawer-target") === check.getAttribute("pb-drawer-target")) {
+              console.log("target", btn)
+              b.classList.add("active");
+              check.classList.add("active");
+              selectedBtn = check;
+            }
+          })
+          itemButtons.forEach(c => {
+            if (c.getAttribute("pb-drawer-target") === check.getAttribute("pb-drawer-target")) {
+              selecteditem = check.closest(".the_item");
+            }
+          })
+          
         });
-        toggleDrawerVisibility();
+        toggleDrawerVisibility(selectedBtn, selecteditem);
         
     }
     // if (e.target.closest('[aria-controls="right-drawer"]')) {
