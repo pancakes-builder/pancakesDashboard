@@ -643,7 +643,7 @@ console.log("startsort...")
             let relUrls = [];
             urlSelectors.forEach(a => {
               if (a.href.includes(window.origin)) {
-                console.log("href", a)
+                //console.log("href", a)
                 relUrls.push(a);
               }
             });
@@ -662,7 +662,7 @@ console.log("startsort...")
                   fetch(url)
                   .then( res => {
                     if (res.ok) {
-                      console.log("relOK", url)
+                      //console.log("relOK", url)
                     } else {
                       //fillDiv.innerText += url;
                       if (notFound.indexOf(url) === -1) {
@@ -676,14 +676,14 @@ console.log("startsort...")
                       
                       //fillDiv.innerText = notFound.length;
                       //fillDiv.innerHTML += `<li>${l}</li>`;
-                      console.log("blinkss", brokenLinks[urlToId(item.getAttribute("meta-list-url"))])
+                      //console.log("blinkss", brokenLinks[urlToId(item.getAttribute("meta-list-url"))])
                       
                       
                     }
                     if (index === relUrls.length -1) {
                       //item.setAttribute("meta-list-broken-links", "hasBrokenLinks");
                       //brokenLinks[urlToId(item.getAttribute("meta-list-url"))] = notFound;
-                      console.log("NOTFOUND", src, url, notFound)
+                      //console.log("NOTFOUND", src, url, notFound)
                     }
                   });
                 
@@ -704,8 +704,8 @@ console.log("startsort...")
                   
 
                   if (index === relUrls.length -1 && activeItems.length -1 === itemIndex) {
-                    console.log("ALL BROKEN LINKS LOADED", index, relUrls.length)
-                    console.log("broken link object", brokenLinks)
+                    //console.log("ALL BROKEN LINKS LOADED", index, relUrls.length)
+                    //console.log("broken link object", brokenLinks)
                     
                     setTimeout( function () {
                       iso.updateSortData();
@@ -890,12 +890,15 @@ console.log("startsort...")
     }
     if (type === "string") {
       friendly = friendly.replace((getMode() + "-"), "")
+      if (name.includes("robots")) {
+        friendly += " value";
+      }
       //friendly = prefix + friendly;
     } else {
       friendly = `<span class="meta_prefix prefix_${getMode()}">` + prefix + friendly + '</span>';
     }
     
-    console.log("friendly", friendly, getMode())
+    //console.log("friendly", friendly, getMode())
     return friendly;
   }
 

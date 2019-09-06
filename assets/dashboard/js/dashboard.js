@@ -430,13 +430,16 @@
 
         if (selectedItem !== undefined) {
           bLinks = brokenLinks[urlToId(selecteditem.getAttribute("meta-list-url"))];
-          console.log('blinks', urlToId(selecteditem.getAttribute("meta-list-url")), brokenLinks)
+          //console.log('blinks', urlToId(selecteditem.getAttribute("meta-list-url")), brokenLinks)
 
           if (bLinks !== undefined && bLinks !== null) {
-            let bLinksHTML;
+            let bLinksHTML = "";
 
             bLinks.forEach(bLink => {
-              bLinksHTML += `<li> ${bLink} </li>`;
+              if (bLink !== undefined) {
+                bLinksHTML += `<li> ${bLink} </li>`;
+              }
+              
             });
             drawerTargetDiv.querySelector(".pb__selected_broken_links").innerHTML = bLinksHTML;
           }
